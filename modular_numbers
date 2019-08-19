@@ -5,13 +5,14 @@ let cordinates = [];
 let rSlider;
 let total = 0;
 
-let factor = 42;
+//factor indicate the number wich is going to multiply all the others, for example, with 2 forms a cardioid
+let factor = 2;
 
 function setup() {
   createCanvas(400, 400);
   r = height/2;
   
-  rSlider = createSlider(0, 10000, 100);
+  rSlider = createSlider(0, 1000, 100);
   rSlider.position(20, 20);
   
 }
@@ -25,7 +26,7 @@ function getVector(index, total){
 function draw() {
   background(0);
   total = rSlider.value(); 
-  //console.log(total);
+ 
 
   translate(width/2, height/2);
   stroke(250,155);
@@ -38,24 +39,24 @@ function draw() {
   for(let i=0; i<total; i++){
     
     const a=getVector(i, total);
- 0
-    cordinates.push({x: a.x,
-                     y: a.y});
+    cordinates.push({
+          x: a.x,
+          y: a.y
+     });
   }
   
   for ( let j=0; j<cordinates.length; j++){
     if(j%factor  == 0 ){
       if(j*factor >= total){
-        console.log(j);
+        
         line(cordinates[j].x,cordinates[j].y, cordinates[j*factor%total].x, cordinates[j*factor%total].y); 
       }
       else{
-        //console.log(j);
+        
         line(cordinates[j].x ,cordinates[j].y, cordinates[j*factor].x, cordinates[j*factor].y); 
       }
-    
+    }
   }
-  
-  }
+  //deleting all the vectors saved, allows to dinamiclly fill it up again with the slider value 
   cordinates = [];
 }
