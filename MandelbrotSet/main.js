@@ -12,10 +12,10 @@ var mapMaxX=2;
 var mapMaxY=2;
 var mapMinX=-2;
 var mapMinY=-2
-
+/*
 let xZonaNula;
 let yZonaNula=80;
-
+*/
 let myWorker1 = new Worker("worker.js");
 let myWorker2= new Worker("worker.js");
 let myWorker3 = new Worker("worker.js");
@@ -45,9 +45,9 @@ function greet(){
         iteraciones=parseInt(input.value());
         input.value='';
         loop();
-    } /*print("pene");*/
+    } print("pene");
    
-/*}*/
+}*/
 
 
 
@@ -60,21 +60,7 @@ let y=0;
 
 
 function draw(){
-    //print("lol");
-    // print("principio for");
-    //for(var x = 0; x  < width; x++){
     
-   
-    /*
-    fila2.push([y+1,mapMinX,mapMaxX,mapMinY,mapMaxY]);
-    fila3.push([y+2,mapMinX,mapMaxX,mapMinY,mapMaxY]);
-    fila4.push([y+3,mapMinX,mapMaxX,mapMinY,mapMaxY]);
-    fila5.push([y+4,mapMinX,mapMaxX,mapMinY,mapMaxY]);
-    fila6.push([y+5,mapMinX,mapMaxX,mapMinY,mapMaxY]);
-    */
-
-   
-    //console.log("nepe");
     
     for(let i=0; i<workers.length;i++){
         if(workers[i].runing = function(e)  { e.data == true}){
@@ -84,25 +70,7 @@ function draw(){
     }
         //console.log("desde el padre: mando una fila x: ",x," y: ",y);
         
-        
-        
-        /*
-        myWorker1.postMessage(fila1);
-        myWorker2.postMessage(fila2);
-        myWorker3.postMessage(fila3);
-        myWorker4.postMessage(fila4);*/
-        /*myWorker5.postMessage(fila5);
-        myWorker6.postMessage(fila6);*/
-
-        /*
-        /*fila5=[];
-        fila6=[];*/
-
-        
-        
-        
-        
-       
+            
     if(y>=height){
         y=0;
         noLoop();
@@ -111,8 +79,7 @@ function draw(){
     y+=4;
     //updatePixels();
     
-    
-    
+ 
 }
 
 myWorker1.onmessage = function(e) {
@@ -129,21 +96,10 @@ myWorker1.onmessage = function(e) {
         if(n==iteraciones){ bright=0;}
         //console.log("-> ",x1," ",y1," ",n);
         set(x1,y1,color(bright));
-        //updatePixels();
+        
     }
    updatePixels();
-}   /*
-    for(let o=0; o<e.data.length; o++){
-        let x1 = e.data[o][0];
-        let y1 = e.data[o][1];
-        let n = e.data[o][2];
-        //console.log('iteraciones 1->',n);
-        bright =color(map(n, 0, iteraciones, 0, 255),0,0);
-        if(n==iteraciones){ bright=0;}
-        //console.log("-> ",x1," ",y1," ",n);
-        set(x1,y1,color(bright));
-    }*/
-    
+}  
 
 myWorker2.onmessage = function(e) {
     let arr=[];
@@ -158,10 +114,11 @@ myWorker2.onmessage = function(e) {
         if(n==iteraciones){ bright=0;}
         //console.log("-> ",x1," ",y1," ",n);
         set(arr.x,arr.y,color(bright));
-        //updatePixels();
+       
     }
     updatePixels();
 }
+
 myWorker3.onmessage = function(e) {
     let arr=[];
     while(e.data.length>0){
@@ -175,10 +132,11 @@ myWorker3.onmessage = function(e) {
         if(n==iteraciones){ bright=0;}
         //console.log("-> ",x1," ",y1," ",n);
         set(arr.x,arr.y,color(bright));
-        //updatePixels();
+        
     }
     updatePixels();
 }
+
 myWorker4.onmessage = function(e) {
     let arr=[];
     while(e.data.length>0){
@@ -192,7 +150,7 @@ myWorker4.onmessage = function(e) {
         if(n==iteraciones){ bright=0;}
         //console.log("-> ",x1," ",y1," ",n);
         set(arr.x,arr.y,color(bright));
-       //updatePixels();
+       
     }
     updatePixels();
 } /*
@@ -226,7 +184,7 @@ myWorker6.onmessage = function(e) {
     }
     updatePixels();
 }  
-    */    
+*/    
     
     
     
@@ -235,8 +193,7 @@ myWorker6.onmessage = function(e) {
 
     
 function mouseClicked() {
-    /* let xM = mouseX;
-        let yM =  mouseY;*/
+    
         print(mouseX+" "+mouseY);
         
         
