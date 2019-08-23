@@ -1,3 +1,8 @@
+/*
+example of recursion with pop and push
+using P5 library for JavaScript
+*/
+
 
 var angle = 3.14159265359 / 4;
 var slider;
