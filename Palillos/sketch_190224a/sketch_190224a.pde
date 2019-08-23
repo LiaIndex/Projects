@@ -1,3 +1,7 @@
+
+// Author: Lia de Belda
+// Fractal using Processing (Java)
+
 ArrayList<Palillo> palos = new ArrayList<Palillo>();
 ArrayList<Palillo> next = new ArrayList<Palillo>();
 int len = 40;
@@ -8,35 +12,23 @@ float factor =10;
 void setup(){
   
   background(255);
-  //size(1000,1000);
-   fullScreen(P2D);
-  //translate(width/2,height/2);
+  fullScreen(P2D);
   Palillo p = new Palillo(0,0,0,len,-1);
-  
-  
   p.printPalillo(factor);
-  
-  
   palos.add(p);
   frameRate(60);
 }
 void draw(){
     background(255);
-   
     translate(width/2,height/2);
     scale(factor);
     generate();
     
     for(Palillo p : palos){
-        minX = min(p.x1,minX);
+       minX = min(p.x1,minX);
        maxX = max(p.x1,maxX);
        factor= float(width)/(maxX-minX);
        p.printPalillo(factor);
-      
-       //
-       
-       //translate(width/2,height/2);
-      
     }
     
  
@@ -52,14 +44,10 @@ boolean isVertexFree(int x, int y, Palillo instancia){
         //if(palos.get(i).nuevo==ttr)return false;
         if(aux.x1==x && aux.y1==y)return false;
         if(aux.x2==x && aux.y2==y)return false;
-        
-        
       }
-    
-    
-    }
+   }
   
-    return true;
+   return true;
 }
 /*
 boolean[] isVertexFreev2(Palillo p){
@@ -125,7 +113,7 @@ void generate(){
          }
          palo.nuevo=false;      
       }
-      //print y scale
+      
        
     }
     
