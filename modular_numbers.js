@@ -40,15 +40,15 @@ function draw() {
     
     const a=getVector(i, total);
     const b=getVector(i*factor, total);
-    
-    /*
-    cordinates.push({
+    line(a.x, a.y, b.x, b.y);
+  
+  }
+  
+  /*
+  cordinates.push({
           x: a.x,
           y: a.y
      });
-     */
-  }
-  /*
   first aprouch of how to get the lines to draw
   for ( let j=0; j<cordinates.length; j++){
     
