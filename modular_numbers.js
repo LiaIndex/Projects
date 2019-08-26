@@ -39,24 +39,28 @@ function draw() {
   for(let i=0; i<total; i++){
     
     const a=getVector(i, total);
+    const b=getVector(i*factor, total);
+    
+    /*
     cordinates.push({
           x: a.x,
           y: a.y
      });
+     */
   }
-  
+  /*
+  first aprouch of how to get the lines to draw
   for ( let j=0; j<cordinates.length; j++){
-    if(j%factor  == 0 ){
+    
       if(j*factor >= total){
-        
         line(cordinates[j].x,cordinates[j].y, cordinates[j*factor%total].x, cordinates[j*factor%total].y); 
       }
       else{
-        
         line(cordinates[j].x ,cordinates[j].y, cordinates[j*factor].x, cordinates[j*factor].y); 
       }
-    }
+    
   }
-  //deleting all the vectors saved, allows to dinamiclly fill it up again with the slider value 
+ 
   cordinates = [];
+  */
 }
