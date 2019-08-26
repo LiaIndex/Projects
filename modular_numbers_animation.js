@@ -15,10 +15,10 @@ function getVector(index, total){
 function draw() {
   background(0);
   const total = 500; 
-  factor += 0.015;
+  factor += PI/3000;
   
   translate(width/2, height/2);
-  stroke(250,155);
+  stroke(255);
   strokeWeight(2);
   noFill();
   ellipse(0,0,r*2);
@@ -27,7 +27,6 @@ function draw() {
   for(let i=0; i<total; i++){
     const a=getVector(i, total);
     const b=getVector(i*factor, total);
-    //stroke(map(i, 0, total, 0,255),map(i, 0, total, 0, 32),map(i, 0, total, 0,150));
     line(a.x, a.y, b.x, b.y);
   }
 }
