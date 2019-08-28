@@ -1,11 +1,8 @@
-/*let AX=360;
-let AY=300;
-
-let BX=-520;
-let BY=200;
-
-let CX = 520;
-let CY = 200;*/
+/*
+Author: Lia de Belda
+Serpiensky Triangle Fractal representation
+see also: https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle
+*/
 let AX=0;
 let AY=-279;
 
@@ -35,16 +32,11 @@ function setup(){
     
     pX=AX;
     pY=BY;
-/*
-    for(let i=0; i<1000000; i++){
-        draw();
-        
-    }*/
 }
 
 function draw(){
   translate(320,300);
-    let vertexSelected = aleatorio(1,3);
+    let vertexSelected = myRnd(1,3);
     
 
     switch(vertexSelected) {
@@ -71,6 +63,6 @@ function draw(){
           // code block
       }
 }
-function aleatorio(minimo,maximo){
+function myRnd(minimo,maximo){
     return Math.floor(Math.random() * ((maximo+1)-minimo)+minimo);
   }
