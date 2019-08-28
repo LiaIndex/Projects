@@ -1,8 +1,14 @@
+/* Author: Lia de Belda
+Korch SnowFlake with a recursive algorithm,
+using P5 library for JavaScript
+see also: https://en.wikipedia.org/wiki/Koch_snowflake
+*/
+
 
 let angle=60;
-let w=2000;
-let h= 2000;
-let len=300;
+let w=500;
+let h= 500;
+let len=100;
 let x=0,y=0,x1=len,y1=0;
 
 index=0;
@@ -13,17 +19,17 @@ function setup(){
     background(color(87,35,100));  
 }
 function draw(){
-    //primera curva
-    translate(500,h/2);
+    //first curve
+    translate(50,h/4);
     stroke(0);
     iterar(len);
     noLoop();
-    //segunda curva
+    //second curve
     translate(len,0);
     rotate(angle*2);
     iterar(len);
     noLoop();
-    //tercera curva
+    //third curve
     translate(len,0);
     rotate(angle*2);
     iterar(len);
@@ -62,7 +68,5 @@ function iterar(len){
     else{
         stroke(color(0,255,0));
         line(x,y,len,0) ;
-       /* translate(len,0);
-        rotate(angle*2);*/
     }
 }
