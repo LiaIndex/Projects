@@ -13,23 +13,12 @@ float minX =  -width/2;
 float  maxX = width/2-1;
 float factor=5;
 String axioma2=axioma;
+
 void setup(){
   size(1080,720);
-  background(255);
-  
-  /*
-  while(cont<iteraciones){
-    axioma=itera(axioma2);
-    axioma2=axioma;
-    //print(axioma,"\n");
-    cont++;  
-  }*/
- 
-  /*
-  scale(factor);*/
-  
-  
+  background(255);  
 }
+
 void draw(){
   
     if(cont<iteraciones){
@@ -37,49 +26,46 @@ void draw(){
       axioma2=axioma;
       cont++;
   
-    translate(width*0.5,height);
-    rotate(-PI/2);
-    //factor*=0.01;
-    //print("echo");
-    for(int i=0; i<axioma.length();i++){
-    
-    
-    
-    //print();
-    if(axioma.charAt(i)=='F'||axioma.charAt(i)=='G'){
+      translate(width*0.5,height);
+      rotate(-PI/2);
+      //factor*=0.01;
       
-      line(0,0,len,0);
-      translate(len,0);
+      for(int i=0; i<axioma.length();i++){
+
+        if(axioma.charAt(i)=='F'||axioma.charAt(i)=='G'){
       
+          line(0,0,len,0);
+          translate(len,0);
+        }
+        else if(axioma.charAt(i)=='+'){
       
-    }
-    else if(axioma.charAt(i)=='+'){
-      //print("rota+");
-      rotate(angle);
+          rotate(angle);
       
-    }
-    else if(axioma.charAt(i)=='-'){
-      //print("rota-");
-      rotate(-angle);
+        }
+        else if(axioma.charAt(i)=='-'){
       
-    }
-    else if(axioma.charAt(i)=='['){
-      //print("rota-");
-      push();
+          rotate(-angle);
       
-    }
-    else if(axioma.charAt(i)==']'){
-      //print("rota-");
-      pop();
+        }
+        else if(axioma.charAt(i)=='['){
+          
+           push();
       
-    }
-  }
+        }
+        else if(axioma.charAt(i)==']'){
+      
+          pop();
+      
+        }
+      }
   
-delay(500);
-}else{
-  print(axioma2);
-  noLoop();}
-}
+      delay(500);
+  }else{
+    print(axioma2);
+    noLoop();
+   }
+ 
+ }
     
 
   
