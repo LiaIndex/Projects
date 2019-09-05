@@ -4,11 +4,12 @@ using P5 library for JavaScript
 */
 
 
-var angle = 3.14159265359 / 4;
+var angle;
 var slider;
 function setup(){
+   angle = PI / 4;
   angleMode(DEGREES);
-  createCanvas(1200,1200);
+  createCanvas(600,600);
   slider = createSlider(40,120,360);
   
 }
@@ -16,8 +17,8 @@ function draw(){
   background(51);
   stroke(255);
   angle =slider.value();
-  translate(500,height);
-  branch(angle*4);
+  translate(width/2,height);
+  branch(angle*2);
 }
 
 function branch(len){
