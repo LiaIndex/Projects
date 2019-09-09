@@ -10,7 +10,7 @@ let mapedY;
 function setup() {
   createCanvas(500, 500);
   
-  t = 0.00042;
+  t = 0.00000000421212;
   x = t;
   y = x;
   tx = t;
@@ -28,12 +28,12 @@ function draw() {
    
     for(let i=0; i<200; i++){
     
-    let newX =/*-x*x + x*t +y;*/  -t*t-x*y+t;
-    let newY = /*x*x - y*y -t*t - x*y +y*t -x +y;*/-x*y+x*t+y+t;
+    let newX =-x*x + x*t +y;/*  -t*t-x*y+t;*/
+    let newY = x*x - y*y -t*t - x*y +y*t -x +y;/*-x*y+x*t+y+t;*/
     let color = random(0,255);
     
-    mapedX = map(newX, -t*300, t*300, 0, width);
-    mapedY = map(newY, -t*300, t*300, 0, height);
+    mapedX = map(newX, -t*50, t*50, 0, width);
+    mapedY = map(newY, -t*50, t*50, 0, height);
       
      
    
@@ -45,7 +45,7 @@ function draw() {
     y=newY;
     
     
-    t+=0.0000000001
+    t+=0.000001
     updatePixels();
     }
   
