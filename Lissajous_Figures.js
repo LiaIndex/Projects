@@ -1,7 +1,7 @@
 /*
 Title : Lissajous_Figures
 Author: Lia Belda Calvo
-example of LisLissajous_Figures in P5
+example of Lissajous_Figures in P5
 */
 
 let nCircles = 7;
