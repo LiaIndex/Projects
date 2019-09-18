@@ -60,7 +60,7 @@ boolean apple = false;
 int applePos;
 //snake structure
 snk serp = new snk();
-
+char thekey;  
 
 
 
@@ -72,70 +72,14 @@ void setup(){
 }
 
 void keyPressed() {
-  actualiceSnk(key);
-}
-
-void actualiceSnk(char thekey){
-  //variables to determine where will appear the new node to add
-  int desplX =0;
-  int desplY =0;
-  //save state pre-change of head
-  serp.head.prevX = serp.head.x;
-  serp.head.prevY = serp.head.y;
-  
   //w up, s down, d right, a left
-  if (thekey == 'w') {
-    serp.head.y -= 1;
-    desplY = 1;
-    if(serp.head.y < 0 ) {serp.head.y = columns -1;}
+   
+  if( key=='w' || key=='s' || key=='d'||key=='a'){
+    thekey=key;
   }
-  else if(thekey == 's'){
-    serp.head.y += 1;
-    desplY = -1;
-    if(serp.head.y == columns) {serp.head.y = 0;}
-  }
-  else if(thekey == 'a'){
-    serp.head.x -= 1;
-    desplX = 1;
-    if(serp.head.x < 0) {serp.head.x = rows -1;}
-  }
-  else if(thekey == 'd'){
-    serp.head.x += 1;
-    desplX = -1;
-    if(serp.head.x == rows) {serp.head.x = 0;}
-  }
-  
-  //if the head touches the apple, the snake grows
-  
-   if(serp.head.x == applePos && serp.head.y == applePos){
-      println("ñam");
-      apple = false;
-      node n2 = new node(serp.last.x+desplX, serp.last.y+desplY);
-      serp.addNode(n2);
-   }
-  
-  if(serp.size > 1){
-    
-    node aux = serp.head.next;
-    while(aux!=null){
-      //LOSS CONDITION snake touches itself
-      if(serp.head.x == aux.x && serp.head.y == aux.y && serp.size>1){
-        println("LOOSER");
-        noLoop();
-      }
-
-      
-      //save state pre-change 
-      aux.prevX = aux.x;
-      aux.prevY = aux.y;
-      //update position based on prev position of prev node
-      aux.x = aux.prev.prevX;
-      aux.y = aux.prev.prevY;
-      
-      aux = aux.next;
-    }
-  }//if
 }
+
+
 
 void draw(){
  
@@ -170,6 +114,67 @@ void draw(){
   node aux = null;
   aux = serp.head;
   
+  
+  //---------------------------------------------------
+  //variables to determine where will appear the new node to add
+  int desplX =0;
+  int desplY =0;
+  //save state pre-change of head
+  serp.head.prevX = serp.head.x;
+  serp.head.prevY = serp.head.y;
+  
+  //w up, s down, d right, a left
+  if (thekey == 'w') {
+    serp.head.y -= 1;
+    desplY = 1;
+    if(serp.head.y < 0 ) {serp.head.y = columns -1;}
+  }
+  else if(thekey == 's'){
+    serp.head.y += 1;
+    desplY = -1;
+    if(serp.head.y == columns) {serp.head.y = 0;}
+  }
+  else if(thekey == 'a'){
+    serp.head.x -= 1;
+    desplX = 1;
+    if(serp.head.x < 0) {serp.head.x = rows -1;}
+  }
+  else if(thekey == 'd'){
+    serp.head.x += 1;
+    desplX = -1;
+    if(serp.head.x == rows) {serp.head.x = 0;}
+  }
+  
+  if(serp.head.x == applePos && serp.head.y == applePos){
+      println("ñam");
+      apple = false;
+      node n2 = new node(serp.last.x+desplX, serp.last.y+desplY);
+      serp.addNode(n2);
+   }
+   //-----------------------------  
+  
+   if(serp.size > 1){
+    
+    node aux2 = serp.head.next;
+    while(aux2!=null){
+      //LOSS CONDITION snake touches itself
+      if(serp.head.x == aux2.x && serp.head.y == aux2.y && serp.size>1){
+        println("LOOSER");
+        noLoop();
+      }
+
+      
+      //save state pre-change 
+      aux2.prevX = aux2.x;
+      aux2.prevY = aux2.y;
+      //update position based on prev position of prev node
+      aux2.x = aux2.prev.prevX;
+      aux2.y = aux2.prev.prevY;
+      
+      aux2 = aux2.next;
+    }
+  }//if
+  
   //draw snake
   fill(0);
   while(aux != null){
@@ -183,5 +188,5 @@ void draw(){
     
   }
   
-  delay(100);
+  delay(250);
 }
