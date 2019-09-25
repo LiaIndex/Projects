@@ -1,3 +1,9 @@
+/*
+Example of Bifurcation diagram animation using P5 for JS
+Author: Lia Belda
+see also: https://www.vanderbilt.edu/AnS/psychology/cogsci/chaos/workshop/BD.html
+*/
+
 let x = 0.1;
 let i = 0;
 let offset = 300;
