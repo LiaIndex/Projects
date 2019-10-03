@@ -109,3 +109,42 @@ function mouseClicked() {
             loop();
         }
 }
+
+/*
+
+to observ the pattern of the stable numbers of the set
+todo: https://www.youtube.com/watch?v=FFftmWSzgmk
+
+void mouseClicked() {
+  
+  float a_ = map(mouseX,0,width,-2,2);
+  float b_ = map(mouseY,0,height,-2,2);
+  
+  int it = 0;
+  
+  float ca_ = a_;
+  float cb_ = b_;
+  
+  while(it<50){
+    
+    float na_ = (a_*a_-b_*b_)+ca_;
+    float nb_ = (2*a_*b_)+cb_;
+    
+    stroke(255,140);
+
+    line(
+      map(a_,-2,2,0,width),
+      map(b_,-2,2,0,height),
+      map(na_,-2,2,0,width),
+      map(nb_,-2,2,0,height)
+    );
+  
+    fill(255);
+    ellipse(mouseX,mouseY,5,5);
+    it++;
+    a_=na_;
+    b_=nb_;
+  }
+  
+  updatePixels();
+}*/
