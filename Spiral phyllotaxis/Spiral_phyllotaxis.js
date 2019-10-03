@@ -24,7 +24,7 @@ function setup() {
   slider.position(10, 10);
   slider.style('width', '80px');
 }
-let j=1;
+
 function draw() {
   background(0);
   translate(width/2,height/2);
@@ -41,7 +41,7 @@ function draw() {
     rotate(angle);
     offset+=0.30;
   }
-  if(offset=width)offset=0.15;
+  offset=0.15;
   //angle+=0.00015;
   j++;
   
