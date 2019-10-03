@@ -46,7 +46,7 @@ function setup(){
           iteraciones=parseInt(input.value());
           input.value='';
           loop();
-      } /*print("pene");*/
+      } 
      
   }
 let x= 0;
@@ -84,8 +84,7 @@ function draw(){
     x++;
 }
 function mouseClicked() {
-    /* let xM = mouseX;
-        let yM =  mouseY;*/
+    
         print(mouseX+" "+mouseY);
         if(mouseX<=xZonaNula && mouseY<=yZonaNula){}
         else{
@@ -100,11 +99,7 @@ function mouseClicked() {
             mapMinY = ney -dy;
 
             mapMaxX = nex +dx;
-            mapMaxY = ney +dy;
-
-        // print("X raton : "+nex+" y raton : "+ney);
-
-            
+            mapMaxY = ney +dy;          
             
             loop();
         }
