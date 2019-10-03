@@ -11,7 +11,7 @@ http://www.arendpeter.com/Perlin_Noise.html
 
 
 let width = 1080;
-let height = 720;
+let height = 1080;
 let vectors = [];
 let vectors_ = [];
 
@@ -23,11 +23,14 @@ let offsetY = height/5;
 let prt ;
 let particles = [];
 let debugMode = false;
-
+let rainbow_mode = false;
+let rmcolor
 
 function setup(){
     //Activate Debug
     //debugMode=true;
+    
+    if(rainbow_mode){colorMode(HSB);}
 
     background(255);
     prt = new Particle();
@@ -35,7 +38,7 @@ function setup(){
 
     //set the array of vectors
     resArr();
-    for(let i=0; i<400; i++){
+    for(let i=0; i<500; i++){
         let pt = new Particle(
             createVector(
                 parseInt(random(width)), 
@@ -56,7 +59,9 @@ class Particle {
         this.velocity = createVector(random(-1, 1), random(-1, 1));
         this.position = position;
         this.prev = this.position;
-        this.maxSpeed = 2;
+        this.maxSpeed = 1;
+        //for HSB color
+        this.h_=0;
     }
     run() {
         this.update();
@@ -74,11 +79,12 @@ class Particle {
         this.prev = this.position;
         this.position.add(this.velocity);
         this.velocity.limit(1.15);
-        
-        if(this.position.x > width){this.position.x = 0;}
-        if(this.position.x < 0){this.position.x = width;}
-        if(this.position.y > height){this.position.y = 0;}
-        if(this.position.y < 0){this.position.y = height;}
+        this.h_++;
+        if(this.h_>360)this.h_=0;
+        if(this.position.x >= width){this.position.x = 1;}
+        if(this.position.x <= 0){this.position.x = width-1;}
+        if(this.position.y >= height){this.position.y = 1;}
+        if(this.position.y <= 0){this.position.y = height-1;}
     }
     // Method to update position
     addAc(position_x,position_y) {
@@ -90,7 +96,9 @@ class Particle {
 
     // Method to display
     display() {
-        stroke(0,7);
+        
+        if(rainbow_mode){stroke(this.h_,360,360,1)}
+        else stroke(0,20);
         strokeWeight(1);
         fill(0);
         if(debugMode){
@@ -99,8 +107,8 @@ class Particle {
         line(
             this.position.x, 
             this.position.y, 
-            this.position.x+this.velocity.x*14,
-            this.position.y+ this.velocity.y*14 
+            this.position.x+this.velocity.x*5,
+            this.position.y+ this.velocity.y*5 
         );
     }
 }
@@ -120,7 +128,7 @@ function getNoise(){
     vectors_=[];
     
     
-    for(let w=0; w<width; w+=10){
+    for(let w=0; w<width; w+=(offsetX/16)){
         
         //x position on the vectors matrix
         xPos =parseInt(w/(width/(vectors.length-1)));
@@ -132,7 +140,7 @@ function getNoise(){
             0,1
         );
 
-        for(let h=0; h<height; h+=10){
+        for(let h=0; h<height; h+=(offsetY/16)){
              
             //y position on the vectors matrix
             yPos =parseInt(h/(height/(vectors[xPos].length-1)));
@@ -202,7 +210,7 @@ let q = 1;
 function draw(){
     
     if(debugMode){background(255);}
-
+    if(rainbow_mode)colorMode(HSB);
     for(let i=0; i<particles.length; i++){
        //X and Y position on the matrix of noise vectors
        let ofX =  parseInt(particles[i].position.x/(width/(vectors_.length-1)));
@@ -214,11 +222,17 @@ function draw(){
        particles[i].run();
     }
     //update reference and noise vectors 50% of times
-    if(q == 2){
+    if(q % 3 == 0){
         resArr2();
         getNoise();
+        //q = 1;
+    }
+    if(q == 10){
+        //resArr();
+        //getNoise();
         q = 1;
     }
+    
     q++;
     //noLoop();
 }
@@ -244,5 +258,18 @@ function resArr2(){
         for(let j=0; j<vectors[i].length; j++){
             vectors[i][j].rotate(random(0, PI/100));
         }
+    }
+}
+
+function mouseClicked(){
+    if(!rainbow_mode){
+        background(0);
+        rainbow_mode = true;
+    }
+    else{
+        background(255);
+        colorMode(RGB);
+        stroke(0,70);
+        rainbow_mode=false;
     }
 }
