@@ -3,32 +3,29 @@ let width = 400;
 let height = 400;
 
 let radio =width/4;
-/*
-let angulo1 = 0.0;
-let angulo2 = 0.0; 
-let angulo3 = 0.0;
-*/
-
 let toplot = [];
 
 
-let circulos = 23;
+let circulos = 10
+
 let angulos = [];
 let centers = [];
+let radios = [];
+let frecuencias = [81,71,67,59,47,31,29,17,11,7,5];
+let dt=0.1;
 
 function setup() {
  createCanvas(width, height);
-  
-  for(let i=0; i<circulos; i++){
+ for(let i=1; i<=circulos; i++){
     angulos.push(0.0);
-    centers.push({x:0,y:0});
+    radios.push( radio / (i+1) );
   }
 }
 
 function draw() {
   
   background(220);
-  
+  //rotate(PI/2);
   
   stroke(0);
   noFill();
@@ -39,31 +36,39 @@ function draw() {
   
   for(let k=0; k<circulos; k++){
     
-    let radioi = ( radio / ( 2*(k+1) ) );
+    
+    //let radioi = ( radio / ( 2*(k+1) ) );
+    let radioi = radios[k];
+    let freqi = frecuencias[k];
+    angulos[k] += (PI / 1000 * dt)   ;
     
     //nuevo centro para el siguiente orbital
-    let xi = cos(angulos[k]) * radioi;
-    let yi = sin(angulos[k]) * radioi;
+    let xi = cos(angulos[k] * freqi) * radioi;
+    let yi = sin(angulos[k] * freqi) * radioi;
     
-    if(k>0){
+    
+     
+    if(k>0 ){
       xi += centers[k-1].x;
       yi += centers[k-1].y;
+      
     }
     
-    
-    centers[k] = {x:xi, y:yi};
     circle(xi,yi,radioi);
-    angulos[k] += (PI / 3000) * (k+1)*10/50  ;
+    centers[k] = {x:xi, y:yi};
+    
+    
     
     if(k==circulos-1){
       toplot.push({x:xi,y:yi});
       //console.log(xi,yi);
     }
+    
   }
   
   stroke(color(250,0,0));
   for(let i=0; i<toplot.length; i++){
-    point(toplot[i].x,toplot[i].y);
+    ellipse(toplot[i].x,toplot[i].y,2,2);
   }
   
   /*
