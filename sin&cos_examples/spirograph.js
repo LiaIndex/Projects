@@ -1,4 +1,5 @@
 
+ 
 let width = 400;
 let height = 400;
 
@@ -6,13 +7,13 @@ let radio =width/4;
 let toplot = [];
 
 
-let circulos = 10
+let circulos = 2;
 
 let angulos = [];
 let centers = [];
 let radios = [];
-let frecuencias = [81,71,67,59,47,31,29,17,11,7,5];
-let dt=0.1;
+let frecuencias = [/*89,149,163,173,*/197,199];
+let dt=/*1/circulos*/1;
 
 function setup() {
  createCanvas(width, height);
@@ -20,6 +21,7 @@ function setup() {
     angulos.push(0.0);
     radios.push( radio / (i+1) );
   }
+  //frecuencias = getNprimes(circulos);
 }
 
 function draw() {
@@ -109,4 +111,36 @@ function draw() {
   for(let i=0; i<toplot.length; i++){
     point(toplot[i].x,toplot[i].y);
   }*/
+}
+function getNprimes(n){
+  const arr = [];
+  let i = 2
+
+  while (arr.length < n) {
+    if (isPrime(i)) {
+      arr.push(i)
+    }
+    i++
+  } 
+  return arr;
+
+  /*
+  * @param n (integer)
+  * @return Boolean
+  *
+  */
+  function isPrime(n) {
+
+    if ( n < 2 ) {
+      return false
+    }
+
+    for ( let i = 2; i <= Math.sqrt(n); i++ ) {
+      if ( n % i === 0 ) {
+          return false;
+      } 
+    }
+    return true
+  }
+
 }
