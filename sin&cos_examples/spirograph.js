@@ -1,4 +1,6 @@
-
+//Example of sin and cos with a spiragraph
+//Author: Lia Belda
+//References: benice-equation.blogspot.com
 
 
 let width = 400;
@@ -7,23 +9,28 @@ let height = 400;
 let radio =width/4;
 let toplot = [];
 
-
-let circulos = 3;
+//number of orbitals
+let circulos = 7;
 
 let angulos = [];
 let centers = [];
 let radios = [];
+
+
 let frecuencias = [197,199,7];
-let dt=1;
+let dt=1/circulos;
 
 function setup() {
  createCanvas(width, height);
- for(let i=1; i<=circulos; i++){
+ 
+  for (let j = 0; j<circulos; j++){
     angulos.push(0.0);
-    radios.push( radio / (i+1) );
+    radios[j] = ( radio / Math.pow(2,(j+1)) );  
+    frecuencias[j] = Math.pow(4,j+1);
   }
+  //proporcional frequencies
   //frecuencias = getNprimes(circulos).reverse();
-  print(frecuencias);
+  //print(frecuencias);
   
 }
 
@@ -32,23 +39,29 @@ function draw() {
   background(220);
   stroke(0);
   noFill();
+  translate(width/2,height/2);
   
   //original circle
-  translate(width/2,height/2);
   circle(0,0,radio);
   
   for(let k=0; k<circulos; k++){
     
+    //1,2,4,8,16....
+    let radioi = radios[k];
     
-    let radioi = ( radio / Math.pow(2,(k+1)) );
-    let freqi = frecuencias[k];
-    if(k%2==0){
+    //frecuencias[k] for proporcional rates 
+    //number of vertex = base +1
+    let freqi = frecuencias[k] ;
+                
+    
+    //angles changes
+    if(k%2!=0){
       angulos[k] += (PI / 1000 * dt);
     }
     else{
       angulos[k] -= (PI / 1000 * dt);
     }
-    //nuevo centro para el siguiente orbital
+    //new center for the orbital
     let xi = cos(angulos[k] * freqi) * radioi;
     let yi = sin(angulos[k] * freqi) * radioi;
     
@@ -64,7 +77,6 @@ function draw() {
     
     if(k==circulos-1){
       toplot.push({x:xi,y:yi});
-      //console.log(xi,yi);
     }
     
   }
