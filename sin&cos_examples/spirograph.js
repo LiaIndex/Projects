@@ -3,21 +3,22 @@
 //References: benice-equation.blogspot.com
 
 
-let width = 400;
-let height = 400;
+let width = 800;
+let height = 800;
 
-let radio =width/4;
+let radio =width/2;
 let toplot = [];
 
 //number of orbitals
-let circulos = 7;
+let circulos = 
+    101;
 
 let angulos = [];
 let centers = [];
 let radios = [];
 
 
-let frecuencias = [197,199,7];
+let frecuencias = [97,31,17];
 let dt=1/circulos;
 
 function setup() {
@@ -25,7 +26,10 @@ function setup() {
  
   for (let j = 0; j<circulos; j++){
     angulos.push(0.0);
-    radios[j] = ( radio / Math.pow(2,(j+1)) );  
+    
+    //interesting: power of 2,3
+    radios[j] = ( radio / Math.pow(2,(j+1)) );
+    
     frecuencias[j] = Math.pow(4,j+1);
   }
   //proporcional frequencies
@@ -36,8 +40,8 @@ function setup() {
 
 function draw() {
   
-  background(220);
-  stroke(0);
+  background(color(26,26,26));
+  stroke(255);
   noFill();
   translate(width/2,height/2);
   
@@ -56,10 +60,10 @@ function draw() {
     
     //angles changes
     if(k%2!=0){
-      angulos[k] += (PI / 1000 * dt);
+      angulos[k] += (PI / 200 * dt);
     }
     else{
-      angulos[k] -= (PI / 1000 * dt);
+      angulos[k] -= (PI / 200 * dt);
     }
     //new center for the orbital
     let xi = cos(angulos[k] * freqi) * radioi;
@@ -83,7 +87,12 @@ function draw() {
   
   stroke(color(250,0,0));
   for(let i=0; i<toplot.length; i++){
-    ellipse(toplot[i].x,toplot[i].y,2,2);
+    stroke(248,93,93);
+    //ellipse(toplot[i].x,toplot[i].y,2,2);
+    if (i >0){
+      line(toplot[i].x, toplot[i].y, toplot[i-1].x, toplot[i-1].y);
+    }
+   //if(i%3==0)toplot.splice(toplot.length/2,toplot.length);
   }
   
 }
