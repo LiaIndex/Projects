@@ -8,11 +8,14 @@
 *      
 */
 
-let quantity = 4;
-let angle = 0.1;
+let quantity = 7;
+//let angle = 0.1;
 let matriz = [];
 let omega =0;
 let  slider;
+let represent = [];
+let red_ = 202;
+let blue_ = 153;
 
 function doCollatz(n){
   let aux = n;
@@ -32,61 +35,52 @@ function doCollatz(n){
  return result.reverse();
 }
 
-function setup() {
-  createCanvas(800, 800,WEBGL);
-  background(40);
-  for ( let i = 20000; i<30000; i++){
-    matriz.push(doCollatz(i));
-  }
-  slider = createSlider(1,250,99);
-}
 function mouseDragged() {
   background(40);
 }
-function waitfor(){
-  let aux = matriz.length;
-  for ( let i = aux; i<aux+100; i++){
+
+function setup() {
+  
+  createCanvas(800, 600,WEBGL);
+  background(40);
+  slider = createSlider(1,999,99);
+
+  for ( let i = 9000; i<10000; i++){
     matriz.push(doCollatz(i));
   }
+  
+  stroke(100,101,253);
 }
+
+
+
 function draw() {
   background(40);
-  omega = slider.value();
   orbitControl();
-  translate(width*0.1, width*0.4,0);
-  rotateY(millis() / 1000);
-  /*rotateY(millis() / 1000);*/
-  let sw = true;
+  translate(1, width*0.25,0);
+  omega = slider.value();
   
+  let sw = true;
+ 
   for(let i=matriz.length-omega; i<matriz.length; i++){
-    if(sw){
-      stroke(255,0,90,10);
-      sw = false;
-    }
-    else{
-      stroke(28,142,255,10);
-      sw = true;
-    }
-      
     push();
+    stroke(red_-i%100,0,blue_+i%100);
     for(let j=0; j<matriz[i].length; j++){
       //MAGIC ANGLES
       if(matriz[i][j] %2 == 0){
-        rotateX( 0.20-(0.0002*j));
-        rotateY( 0.20-(0.0002*j));
+        rotateX( 0.25-(0.0002*j));
+        rotateY( 0.25-(0.0002*j));
       }
       else{
-       rotateX( -0.19+(0.00025*j) );
-       rotateY( -0.19+(0.00025*j) );
+       rotateX( -0.24+(0.00025*j) );
+       rotateY( -0.24+(0.00025*j) );
       }
-      
-      //line( 0, 0, 0, 0, -quantity ,0);
-      sphere(quantity,1,1);
+      cylinder(1,quantity);
       translate( 0, -quantity,0);
     }
     pop();
+    
+    
   }
-  
-  if(matriz.length <=5000){setTimeout(waitfor,3000);}
-  
+ 
 }
