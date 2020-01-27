@@ -46,7 +46,8 @@ function waitfor(){
 }
 function draw() {
   
-  translate(width*0.5, width*0.9);
+  translate(width*0.1, width*0.9);
+  rotate(5);
   let sw = true;
   
   for(let i=matriz.length-99; i<matriz.length; i++){
@@ -61,12 +62,12 @@ function draw() {
       
     push();
     for(let j=0; j<matriz[i].length; j++){
-      
+      //MAGIC ANGLES
       if(matriz[i][j] %2 == 0){
-        rotate( -angle );
+        rotate( 0.27-(0.0002*j));
       }
       else{
-       rotate( angle );
+       rotate( -0.19+(0.00025*j) );
       }
       
       line( 0, 0,  0, -quantity );
