@@ -32,21 +32,24 @@ function doCollatz(n){
 
 function setup() {
   createCanvas(600, 600);
-  
-  for ( let i = 1; i<3000; i++){
+  background(40);
+  for ( let i = 1; i<200; i++){
     matriz.push(doCollatz(i));
   }
   
 }
-
+function waitfor(){
+  let aux = matriz.length;
+  for ( let i = aux; i<aux+100; i++){
+    matriz.push(doCollatz(i));
+  }
+}
 function draw() {
-  background(40);
-  translate(width*0.5, width*0.9);
-  //stroke(255,0,0);
-  //ellipse(0,0,3);
   
+  translate(width*0.5, width*0.9);
   let sw = true;
-  for(let i=0; i<matriz.length; i++){
+  
+  for(let i=matriz.length-99; i<matriz.length; i++){
     if(sw){
       stroke(255,0,90,10);
       sw = false;
@@ -71,6 +74,6 @@ function draw() {
     }
     pop();
   }
-  noLoop();
+  setTimeout(waitfor,3000);
   
 }
