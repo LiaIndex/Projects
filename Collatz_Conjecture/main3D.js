@@ -8,79 +8,89 @@
 *      
 */
 
-let quantity = 7;
-//let angle = 0.1;
+let quantity = 6;
 let matriz = [];
 let omega =0;
 let  slider;
-let represent = [];
 let red_ = 202;
 let blue_ = 153;
 
+/**
+*  return an array containing the i angle of rotation 
+*  correspondent to the i element of the Collatz path for the 
+*  given number n.
+*
+*   n = 2; result = [ 0.20-(0.0002*0) ]
+*   n = 3; result = [ 
+*                    -0.19-(0.00025 * 0),
+*                    -0.19-(0.00025 * 1),
+*                     0.20-(0.0002  * 2),
+*                     0.20-(0.0002  * 3),
+*                     0.20-(0.0002  * 4)
+*                   ]
+**/
 function doCollatz(n){
   let aux = n;
+  let angle;
+  let cont = 1;
   let result = [];
-  result.push(aux);
+  let a1 = PI/13;
+  let a2 = -PI/20;
+  result.push( n%2 == 0 ? a1 : a2 );
   
   while( aux != 1 ){
-    if(aux %2== 0){
+    if(aux %2 == 0){
       aux /= 2;
+      angle = a1;
     }
     else{
       //canonic is 3n+1 but with /2 is more aesthetic
       aux =( aux * 3 +1 ) /2;
+      angle = a2;
     }
-    result.push(aux);
+    result.push(angle);
+    cont++;
   }
  return result.reverse();
 }
-
 function mouseDragged() {
   background(40);
 }
-
 function setup() {
   
-  createCanvas(800, 600,WEBGL);
+  createCanvas(2400, 2400,WEBGL);
   background(40);
-  slider = createSlider(1,999,99);
-
-  for ( let i = 9000; i<10000; i++){
+  slider = createSlider(1,7500,99);
+  for ( let i = 1000; i<10000; i++){
     matriz.push(doCollatz(i));
   }
-  
-  stroke(100,101,253);
+  rectMode(CENTER);
 }
-
-
-
 function draw() {
+  
   background(40);
   orbitControl();
-  translate(1, width*0.25,0);
-  omega = slider.value();
+  noStroke();
+  strokeWeight(1);
+  directionalLight(250, 250, 250, 200, 0, 0);
+  directionalLight(250, 250, 250, -200, 0, 0);
+
+  //rotateY(-millis() / 1000);
+  //rotateZ(millis() / 1000);
   
-  let sw = true;
+  omega = slider.value();
+  scale(2);
  
   for(let i=matriz.length-omega; i<matriz.length; i++){
     push();
-    stroke(red_-i%100,0,blue_+i%100);
-    for(let j=0; j<matriz[i].length; j++){
-      //MAGIC ANGLES
-      if(matriz[i][j] %2 == 0){
-        rotateX( 0.25-(0.0002*j));
-        rotateY( 0.25-(0.0002*j));
-      }
-      else{
-       rotateX( -0.24+(0.00025*j) );
-       rotateY( -0.24+(0.00025*j) );
-      }
-      cylinder(1,quantity);
-      translate( 0, -quantity,0);
-    }
+         fill(red_-i%100,0,blue_+i%100);
+         for(let j=0; j<matriz[i].length; j++){
+            rotateX(matriz[i][j]);
+            rotateY(matriz[i][j]);
+            box(5,quantity,3);
+            translate( 0, -quantity,0);
+          }
     pop();
-    
-    
   }
- 
+  
 }
