@@ -32,7 +32,7 @@ let blue_ = 153;
 function doCollatz(n){
   let aux = n;
   let angle;
-  let cont = 1;
+  
   let result = [];
   let a1 = PI/13;
   let a2 = -PI/20;
@@ -49,37 +49,40 @@ function doCollatz(n){
       angle = a2;
     }
     result.push(angle);
-    cont++;
+    
   }
  return result.reverse();
 }
+
 function mouseDragged() {
   background(40);
 }
+
 function setup() {
   
-  createCanvas(2400, 2400,WEBGL);
+  createCanvas(600, 600,WEBGL);
   background(40);
-  slider = createSlider(1,7500,99);
-  for ( let i = 1000; i<10000; i++){
+  slider = createSlider(1,100,50);
+  for ( let i = 10000; i<20000; i++){
     matriz.push(doCollatz(i));
   }
   rectMode(CENTER);
 }
+
 function draw() {
   
   background(40);
   orbitControl();
   noStroke();
-  strokeWeight(1);
+  strokeWeight(1);/*
   directionalLight(250, 250, 250, 200, 0, 0);
-  directionalLight(250, 250, 250, -200, 0, 0);
+  directionalLight(250, 250, 250, -200, 0, 0);*/
 
   //rotateY(-millis() / 1000);
   //rotateZ(millis() / 1000);
   
   omega = slider.value();
-  scale(2);
+  scale(0.75);
  
   for(let i=matriz.length-omega; i<matriz.length; i++){
     push();
