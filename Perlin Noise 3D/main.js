@@ -6,39 +6,161 @@ https://en.wikipedia.org/wiki/Perlin_noise
 https://wiki.freepascal.org/Perlin_Noise
 http://www.arendpeter.com/Perlin_Noise.html
 */
-
-let width = 1000;
-let height = 1000;
+let condicion = true;
+let res;
+let width = 600;
+let height = 600;
 let vectors = [];
 let pg;
+let turbulence;
+let detail;
 //number of boxes = denominator
 let offset = width/10;
+let offsetV = width/10;
 
 function setup(){
     
-    createCanvas(width, height,WEBGL);
-    
-    //set the array of vectors
-    resArr();
-    
+  createCanvas(width, height,WEBGL);
+  stroke(0);
+  strokeWeight(1);
+  
+  //set the array of vectors
+  resArr();
+  res = getPerlin3DPoints();
+  turbulence = createSlider(1, 8, 3);
+  detail = createSlider(1, 8, 3);
+  turbulence.position(20, 20);
+  detail.position(20, 40);
+  
 }
 
-function draw(){
-    //rotateZ(frameCount*0.02);
-    rotateY(PI);
-    rotateX(-PI/3);
-    rotateZ(PI);
-    translate(-width/2,-height/2);
 
-    background(255);
+function draw(){
+  if(touches.length > 0)resArr();
+  orbitControl();
+  scale(0.5);
+  frameRate(25);
+  translate(width/2,-height/2);
+  rotateY(PI);
+  rotateX(-PI/4);
+  background(255);
+  
+  let offsetAuxV = offsetV;
+  offsetV =(width/10) * turbulence.value();
+  if(offsetAuxV != offsetV){resArr();}
+  offset = (width/10) / detail.value();
+  
+ res = getPerlin3DPoints();
+
+  for(let i=0; i<res.length; i++){
+    for(let j=0; j<res[i].length; j++){
+      if(j == res.length -1 && i < res.length -1){
+        line(
+            res[i][j].x,
+             res[i][j].y,
+             res[i][j].z,
+             res[i+1][j].x,
+             res[i+1][j].y,
+             res[i+1][j].z
+        );
+      }else if(i == res.length-1 && j < res.length -1){
+        line(
+            res[i][j].x,
+            res[i][j].y,
+            res[i][j].z,
+            res[i][j+1].x,
+            res[i][j+1].y,
+            res[i][j+1].z
+        );
+      }
+      else if( i < res.length -1 && j < res.length -1){
+        line(
+             res[i][j].x,
+             res[i][j].y,
+             res[i][j].z,
+             res[i][j+1].x,
+             res[i][j+1].y,
+             res[i][j+1].z
+        );
+        line(
+          res[i+1][j].x,
+          res[i+1][j].y,
+          res[i+1][j].z,
+          res[i][j].x,
+          res[i][j].y,
+          res[i][j].z
+        );
+        line(
+          res[i+1][j].x,
+          res[i+1][j].y,
+          res[i+1][j].z,
+          res[i][j+1].x,
+          res[i][j+1].y,
+          res[i][j+1].z
+        );
+      }//elseif
+    }//for
+  }//for
+  /*let auxM = res[res.length-1];
+  for(let k=res.length-1; k>0;k--){
+res[k]=res[k-1];
+}
+  res[0] = auxM;*/
+  resArr2();
+  
+}
+
+/**
+*
+* resArr will initialize the reference vectors
+* later those reference vectors will be used to 
+* calculate the Perlin Vectos
+*
+**/
+function resArr(){
+    vectors=[];
+    for(let i=0; i<width; i+=offsetV){
+        let aux = []; 
+        for(let j=0; j<height; j+=offsetV){
+            let p = createVector(
+                random(-1, 1),
+                random(-1, 1)
+            ).normalize();
+
+           
+            aux.push(p);
+            
+        }
+        vectors.push(aux);
+    }
+
+}
+//modify reference vectors
+function resArr2(){
+    for(let i=0; i<vectors.length; i++){
+        for(let j=0; j<vectors[i].length; j++){
+            vectors[i][j].rotate(random(0, PI/50));
+        }
+    }
+}
+
+/**
+* return a matrix of points (x,y,z) where x and y 
+* are calculated using offset and z is a mapping
+* from v2, wich are the perlin values, those perlin
+* values are calculated using cosine interpolation
+* wich gives more smoothness, in the code is comented
+* the linear interpolation, wich is the regular way to
+* do it
+**/
+
+function getPerlin3DPoints(){
     let xPos;
     let yPos;
-
+    let resAux = [];
+    let res_ = [];
     
-    //rotateZ(frameCount*0.02);
-
-
-    for(let w=0; w<width; w+=8){
+    for(let w=0; w<width; w+=offset){
         //x position on the vectors matrix
         xPos =parseInt(w/(width/(vectors.length-1)));
         //position from 0 to 1 on x
@@ -48,7 +170,7 @@ function draw(){
             width/(vectors.length-1),
             0,1
         );
-        for(let h=0; h<height; h+=8){
+        for(let h=0; h<height; h+=offset){
             //y position on the vectors matrix
             yPos =parseInt(h/(height/(vectors.length-1)));
             
@@ -94,33 +216,20 @@ function draw(){
               //      + f2*(1-mapedX)*mapedY + f4*mapedX*mapedY;
             //console.log(c);                   
             //print(w,h,v2);
-            stroke(0);
-            strokeWeight(4);
+            let alt = map(v2, 0, 1, 0, 150);
             
-            point(w,h,map(v2, 0, 1, 0, 150));
-            
-            
-        }
-    }
-    
-    //updatePixels();
-    resArr();
-}
-function resArr(){
-    vectors=[];
-    for(let i=0; i<width; i+=offset){
-        let aux = []; 
-        for(let j=0; j<height; j+=offset){
-            let p = createVector(
-                random(-1, 1),
-                random(-1, 1)
-            ).normalize();
-
-           
-            aux.push(p);
+            //point(w,h,alt);
+            resAux.push({x:w, y:h, z:alt});
+            /*
+            push();
+            translate(w,h,0);
+            box(offset,offset,alt);
+            pop();
+            */
             
         }
-        vectors.push(aux);
-    }
-
+        res_.push(resAux);
+        resAux = [];
+     }
+     return res_;
 }
