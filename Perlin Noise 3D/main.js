@@ -27,7 +27,7 @@ function setup(){
   //set the array of vectors
   resArr();
   res = getPerlin3DPoints();
-  turbulence = createSlider(1, 8, 3);
+  turbulence = createSlider(0.5, 4.0, 1.5);
   detail = createSlider(1, 8, 3);
   turbulence.position(20, 20);
   detail.position(20, 40);
@@ -39,7 +39,7 @@ function draw(){
   if(touches.length > 0)resArr();
   orbitControl();
   scale(0.5);
-  frameRate(25);
+  frameRate(60);
   translate(width/2,-height/2);
   rotateY(PI);
   rotateX(-PI/4);
@@ -51,55 +51,62 @@ function draw(){
   offset = (width/10) / detail.value();
   
  res = getPerlin3DPoints();
-
+noFill();
   for(let i=0; i<res.length; i++){
+    beginShape();
     for(let j=0; j<res[i].length; j++){
       if(j == res.length -1 && i < res.length -1){
-        line(
+        vertex(
             res[i][j].x,
              res[i][j].y,
-             res[i][j].z,
+             res[i][j].z);
+        vertex(
              res[i+1][j].x,
              res[i+1][j].y,
              res[i+1][j].z
         );
       }else if(i == res.length-1 && j < res.length -1){
-        line(
+        vertex(
             res[i][j].x,
             res[i][j].y,
-            res[i][j].z,
+            res[i][j].z);
+        vertex(
             res[i][j+1].x,
             res[i][j+1].y,
             res[i][j+1].z
         );
       }
       else if( i < res.length -1 && j < res.length -1){
-        line(
+        vertex(
              res[i][j].x,
              res[i][j].y,
-             res[i][j].z,
+             res[i][j].z);
+        vertex(
              res[i][j+1].x,
              res[i][j+1].y,
              res[i][j+1].z
         );
-        line(
+        vertex(
           res[i+1][j].x,
           res[i+1][j].y,
-          res[i+1][j].z,
+          res[i+1][j].z);
+        vertex(
           res[i][j].x,
           res[i][j].y,
           res[i][j].z
         );
-        line(
+        vertex(
           res[i+1][j].x,
           res[i+1][j].y,
-          res[i+1][j].z,
+          res[i+1][j].z);
+          vertex(
           res[i][j+1].x,
           res[i][j+1].y,
           res[i][j+1].z
         );
       }//elseif
     }//for
+    endShape();
   }//for
   /*let auxM = res[res.length-1];
   for(let k=res.length-1; k>0;k--){
@@ -216,7 +223,7 @@ function getPerlin3DPoints(){
               //      + f2*(1-mapedX)*mapedY + f4*mapedX*mapedY;
             //console.log(c);                   
             //print(w,h,v2);
-            let alt = map(v2, 0, 1, 0, 150);
+            let alt = map(v2, 0, 1, 0, 80);
             
             //point(w,h,alt);
             resAux.push({x:w, y:h, z:alt});
