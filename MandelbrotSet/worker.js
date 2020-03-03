@@ -1,25 +1,20 @@
 
-//max iterations
-let iterac=1200;
-let w=1000;
-let h=1000;
+let iterac=5000;
+let w=700;
 
-//imaginary component
+let h=700;
+
 let b;
-//real and imagininary components squared
 let aa,bb;
-//real and imag. component of the prev complex number to iterate
+
 let ca;
 let cb;
-//iterations
 let n
-//auxiliar coordinates variable s
 let x1=0,y1;
-//array to return
+
 let fila=[];
-//locked ? wait:calculate
 let libre = true;
-//boundaries
+
 var mapMaxX2=2;
 var mapMaxY2=2;
 var mapMinX2=-2;
@@ -35,8 +30,7 @@ runing = function(){
 
 
 onmessage = function(e) {
-        
-        //if e is an array, then it is a config message from main to set the canvas and turn the worker free for new tasks
+    
         if(Array.isArray(e.data)){
            // console.log(e.data);
            libre=false;
@@ -44,60 +38,83 @@ onmessage = function(e) {
             mapMaxY2=e.data[1];
             mapMinX2=e.data[2];
             mapMinY2=e.data[3];
-            l= (mapMaxX2-mapMinX2)/w;
+            //l= (mapMaxX2-mapMinX2)/w;
             libre=true;
-            
+            //postMessage(true);
         }
-        //if is not an array then is a y coordinate to calculate
         else{
-            //lock the worker and
-            //in order to increase performance, the real component is deduced out of the x position of the pixel
-            libre=false;
-            let a=mapMinX2;
+        let a=mapMinX2;
+        //console.log(mapMaxX2,mapMaxY2,mapMinX2,mapMinY2);
+        libre=false;
+        let y1 = e.data;
+        b=map1(y1,0,h,mapMinY2,mapMaxY2);
+        while(x1<w){
+
+        
+            //console.log("lol");
             
-            //received data from main
-            let y1 = e.data;
-            //calculate imaginary component from the y position of the pixel
-            b=map1(y1,0,h,mapMinY2,mapMaxY2);
+            a=map1(x1,0,w,mapMinX2,mapMaxX2);
             
-            //iterate the width of the screen
-            while(x1<w){
-                
-                //calculate the real component from the x coordinate
-                a=map1(x1,0,w,mapMinX2,mapMaxX2);
-                //get number of iterations of number z
-                n=itera(a,b);
-                
+            n=itera(a,b);
+           
+            fila.push({
+                x: x1,
+                y: y1,
+                it: n
+            });
 
-                //push into the vector "fila" (wich is going to return all the row to main) the result, x and y coordinates to the screen and number of iterations 
-                fila.push({
-                    x: x1,
-                    y: y1,
-                    it: n
-                });
-                
-                x1++;
-                //when finish the row, reset real component
-                if(a>=mapMaxX2)a=mapMinX2;
+            x1++;
+            if(a>=mapMaxX2)a=mapMinX2;
+            /*fila4.push({
+            y: y+3,
+            MinX :mapMinX,
+            MaxX :mapMaxX,
+            MinY :mapMinY,
+            MaxY :mapMaxY}
+            );*/
+        }
+        //if(x1%100==0)console.log("pixeles worker " + fila.length);
+        /*console.log("maxX: "+mapMaxX2 +"\n"+
+        "maxY: "+mapMaxY2 +"\n"+
+        "minX: "+mapMinX2 +"\n"+
+        "minY: "+mapMinY2 +"\n"+
+        fila.length
+        );*/
+        postMessage(fila);
+        fila=[];
+    
+        x1=0;
+        libre=true;
+        /*
+        for(let v=0; v<e.data.length; v++){
+            
+    //x,y,mapMinX,mapMaxX,mapMinY,mapMaxY]
+            x1=e.data[v][0];
+            xprueba  += l;
 
-            }
-            //return data to main and reset the other parameters
-            postMessage(fila);
-            fila=[];
+            
+            y1=e.data[v][1];
+            
+            a=map1(x1,0,w,e.data[0][2],e.data[0][3]);
+            b=map1(y1,0,w,e.data[0][4],e.data[0][5]);
 
-            x1=0;
-            libre=true;
-      
+            console.log("compara a: "+a+"  prueba: "+xprueba);
+            n=itera(a,b);
+            fila.push([xprueba,y1,n]);
+            //console.log(x,y);
+            //map(x, 0, width, mapMinX, mapMaxX),map(y+1, 0, height, mapMinY, mapMaxY)
+        }*/
+        
         }
 }
-//f(z)=z^2+c    on z is the actual number to iterate and c the previous one
+
 function itera(a,b){
     ca = a;
     cb = b;
     let n1=0;
     while (n1<iterac){
             
-        aa = a * a-b * b;
+        aa = a * a-b *b;
         bb = 2  * a * b;
     
          a= aa+ca;
