@@ -6,17 +6,25 @@ https://en.wikipedia.org/wiki/Perlin_noise
 https://wiki.freepascal.org/Perlin_Noise
 http://www.arendpeter.com/Perlin_Noise.html
 */
+let checkbox;
+
 let condicion = true;
+let flow = true;
 let res;
-let width = 600;
-let height = 600;
+let width = 350;
+let height = 350;
 let vectors = [];
 let pg;
 let turbulence;
 let detail;
 //number of boxes = denominator
-let offset = width/10;
-let offsetV = width/10;
+let offset1 = width/10;
+let offset2 = height/10;
+
+let offsetV1 = width/10;
+let offsetV2 = height/10;
+
+let res2;
 
 function setup(){
     
@@ -27,32 +35,127 @@ function setup(){
   //set the array of vectors
   resArr();
   res = getPerlin3DPoints();
-  turbulence = createSlider(0.5, 4.0, 1.5);
-  detail = createSlider(1, 8, 3);
+  res2 = getPerlin3DPoints();
+  turbulence = createSlider(0.5, 4.5, 0.5);
+  detail = createSlider(1, 4, 0.5);
   turbulence.position(20, 20);
   detail.position(20, 40);
   
+  checkbox = createCheckbox('flow', true);
+  checkbox.changed(myCheckedEvent);
+  checkbox.position(20, 0);
 }
 
+function myCheckedEvent() {
+  if (this.checked()) {
+    flow = true;
+  } else {
+    flow = false;
+  }
+}
 
 function draw(){
-  if(touches.length > 0)resArr();
+  
   orbitControl();
-  scale(0.5);
+  noFill();
+  scale(0.90);
   frameRate(60);
-  translate(width/2,-height/2);
-  rotateY(PI);
+  translate(width/2,height/2);
+  rotate(PI);
   rotateX(-PI/4);
-  background(255);
+  background(0);
   
-  let offsetAuxV = offsetV;
-  offsetV =(width/10) * turbulence.value();
-  if(offsetAuxV != offsetV){resArr();}
-  offset = (width/10) / detail.value();
+  //offsetAuxV and ..Aux are used to check if the value
+  //of the sliders has change from the previous iteration
+  let offsetAuxV = offsetV1;
+  let offsetAux = offset1;
   
- res = getPerlin3DPoints();
-noFill();
+  //Aumenting the number of reference vectors cause a more sensible
+  //system, resulting in more turbulence
+  offsetV1 =(width/10) / turbulence.value();
+  offsetV2 =(height/10) / turbulence.value();
+  //Aumenting the number of vectors used  to calculate  the z component
+  //provides  a more detailed system
+  offset1 = (width/10) / detail.value();
+  offset2 = (height/10) / detail.value();
+  //if the slider changes is needed a recalculation of the reference
+  //and also recalculate the perlin values
+  
+  if( (offsetAuxV != offsetV1) || (offsetAux != offset1) ){
+    resArr();
+    res = getPerlin3DPoints();
+    res2 = getPerlin3DPoints();
+  }
+
+  /**
+  * In order to generate the field dinamically, a new set of values
+  * are calculated and stored in res2, then the data is passed from res2
+  * to res one row at time
+  **/
+  let auxZ = [];
+  if(!flow){
+  for(let iz=0; iz<res2.length; iz++){
+      auxZ.push( res2[iz].shift().z );
+  }}
+  
+  /**
+  *  then all the rows must update and go down 1 step
+  *  when that is done, the last one is updated with the 
+  *  data from res2 
+  **/
+  //abajo
+  
+  if(!flow){
+    for(let iz2=0; iz2<res.length; iz2++){
+      //izquierda
+      for(let iz3=0; iz3<res[iz2].length-1; iz3++){
+        res[iz2][iz3].z = res[iz2][iz3+1].z;
+      }
+    }
+
+    for(let iz4=0; iz4<res.length; iz4++){
+        res[iz4][res.length-1].z = auxZ[iz4];
+    }
+  }
+  
+  if(flow){
+  resArr2();
+  res = getPerlin3DPoints();
+  }
+  /**
+  *  for  last when all the data from res2 has passed to res
+  *  then res2 is updated with more data
+  *  TODO:   improve the solaping for better results
+  **/
+  
+  if(!flow){
+  if(res2[0].length < 1){
+        resArr();
+        res2 = getPerlin3DPoints();
+  }}
+  
+  stroke(240);
   for(let i=0; i<res.length; i++){
+    /**
+      * for debbuging 
+      -------------------
+        stroke(255,0,0);
+        strokeWeight(25);
+        point(res[i][0].x,
+                 res[i][0].y,
+                 res[i][0].z);
+        stroke(0)
+        strokeWeight(1);
+      
+      *    
+    **/
+    
+    /**
+    *  __ __
+    * |\ |\
+    *
+    **/
+    
     beginShape();
     for(let j=0; j<res[i].length; j++){
       if(j == res.length -1 && i < res.length -1){
@@ -95,25 +198,15 @@ noFill();
           res[i][j].y,
           res[i][j].z
         );
-        vertex(
-          res[i+1][j].x,
-          res[i+1][j].y,
-          res[i+1][j].z);
-          vertex(
-          res[i][j+1].x,
-          res[i][j+1].y,
-          res[i][j+1].z
-        );
+        
+      
       }//elseif
     }//for
     endShape();
   }//for
-  /*let auxM = res[res.length-1];
-  for(let k=res.length-1; k>0;k--){
-res[k]=res[k-1];
-}
-  res[0] = auxM;*/
-  resArr2();
+  
+  //adds a bit more of randomess
+  //resArr2();
   
 }
 
@@ -126,9 +219,9 @@ res[k]=res[k-1];
 **/
 function resArr(){
     vectors=[];
-    for(let i=0; i<width; i+=offsetV){
+    for(let i=0; i<width; i+=offsetV1){
         let aux = []; 
-        for(let j=0; j<height; j+=offsetV){
+        for(let j=0; j<height; j+=offsetV2){
             let p = createVector(
                 random(-1, 1),
                 random(-1, 1)
@@ -146,9 +239,11 @@ function resArr(){
 function resArr2(){
     for(let i=0; i<vectors.length; i++){
         for(let j=0; j<vectors[i].length; j++){
-            vectors[i][j].rotate(random(0, PI/50));
+            vectors[i][j].rotate(random(0, PI/25));
         }
     }
+  
+  
 }
 
 /**
@@ -166,8 +261,8 @@ function getPerlin3DPoints(){
     let yPos;
     let resAux = [];
     let res_ = [];
-    
-    for(let w=0; w<width; w+=offset){
+    let con = 0;
+    for(let w=0; w<width; w+=offset1){
         //x position on the vectors matrix
         xPos =parseInt(w/(width/(vectors.length-1)));
         //position from 0 to 1 on x
@@ -177,9 +272,9 @@ function getPerlin3DPoints(){
             width/(vectors.length-1),
             0,1
         );
-        for(let h=0; h<height; h+=offset){
+        for(let h=0; h<height; h+=offset2){
             //y position on the vectors matrix
-            yPos =parseInt(h/(height/(vectors.length-1)));
+            yPos =parseInt(h/(height/(vectors[xPos].length-1)));
             
             //relative vectors to the pixel
             let vec1 = vectors[yPos+1][xPos];
@@ -189,9 +284,9 @@ function getPerlin3DPoints(){
             
             //position from 0 to 1 on y
             let mapedY = map(
-                h%(height/(vectors.length-1)), 
+                h%(height/(vectors[xPos].length-1)), 
                 0, 
-                height/(vectors.length-1), 
+                height/(vectors[xPos].length-1), 
                1,0
             );
             //distance vectors
@@ -219,22 +314,20 @@ function getPerlin3DPoints(){
             v2 = 6*pow(v2,5)-15*pow(v2,4)+10*pow(v2,3);
              
             //linear interpolation
-            //let c = f1*(1-mapedX)*(1-mapedY) + f3*mapedX*(1-mapedY)
-              //      + f2*(1-mapedX)*mapedY + f4*mapedX*mapedY;
-            //console.log(c);                   
-            //print(w,h,v2);
-            let alt = map(v2, 0, 1, 0, 80);
-            
-            //point(w,h,alt);
-            resAux.push({x:w, y:h, z:alt});
             /*
-            push();
-            translate(w,h,0);
-            box(offset,offset,alt);
-            pop();
+            let c = f1*(1-mapedX)*(1-mapedY) +
+                    f3*mapedX*(1-mapedY) +
+                    f2*(1-mapedX)*mapedY +
+                    f4*mapedX*mapedY;
             */
+            //console.log(c);                   
             
-        }
+            let alt = map(v2, 0, 1, 0, 45);
+            
+            
+            resAux.push({x:w, y:h, z:alt});
+         }
+      
         res_.push(resAux);
         resAux = [];
      }
