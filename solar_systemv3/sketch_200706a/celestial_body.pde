@@ -78,10 +78,10 @@ class celestial_body {
 
         for (int i = 0; i < lvlOfDetail; i++) {
             float theta = map(i, 0, lvlOfDetail - 1, -PI, PI);
-            if (i == 0 || i == lvlOfDetail - 1) theta += TWO_PI / lvlOfDetail; //edge case control
+            if (i == 0 || i == lvlOfDetail - 1) theta += PI / lvlOfDetail; //edge case control
             for (int j = 0; j < lvlOfDetail; j++) {
                 float phi = map(j, 0, lvlOfDetail - 1, -HALF_PI, HALF_PI);
-                if (j == 0 || j == lvlOfDetail - 1) phi += TWO_PI / lvlOfDetail; //edge case control
+                if (j == 0 || j == lvlOfDetail - 1) phi += PI / lvlOfDetail; //edge case control
                 float rad = map(
                     noise(
                         sin(theta) * cos(phi) * scl + radius,
