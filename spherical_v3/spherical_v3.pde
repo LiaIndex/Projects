@@ -1,9 +1,8 @@
 import peasy.*;
 
-final int detail = 80;
+final int detail = 150;
 final int radius_ = 50;
 PVector[][] sphere;
-float[][] noiseV;
 boolean debug = false;
 /**
 * calculateSpherePoints(int, l, int rm, rM)
@@ -24,10 +23,10 @@ PVector[][] calculateSpherePoints(int lvlOfDetail, int radius, int radiusM){
   
   for(int i=0; i<lvlOfDetail; i++){
     float theta = map(i, 0, lvlOfDetail - 1, -PI, PI);
-    if(i==0 || i==lvlOfDetail-1)theta += TWO_PI/lvlOfDetail; //edge case control
+    if(i==0 || i==lvlOfDetail-1)theta += PI/lvlOfDetail; //edge case control
     for(int j=0; j<lvlOfDetail; j++){
       float phi = map(j, 0, lvlOfDetail - 1, -HALF_PI, HALF_PI);
-      if(j==0|| j==lvlOfDetail-1)phi += TWO_PI/lvlOfDetail; //edge case control
+      if(j==0|| j==lvlOfDetail-1)phi += PI/lvlOfDetail; //edge case control
           float rad = map (
                     noise(
                        sin(theta) * cos(phi) * scl +radius,
@@ -106,7 +105,7 @@ void draw_glob(PVector[][] points){
 }
 
 void setup(){
-  noiseSeed(123456789);
+  //noiseSeed(123456789);
   size(600,600,P3D);
   PeasyCam cam = new PeasyCam(this,100);
   cam.setMinimumDistance(100);
