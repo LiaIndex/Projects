@@ -4,15 +4,34 @@ MP3 player project
 Im trying to build a full mp3 player javascript app
 using p5.js.
 
-Added hud, time_left, prev-next song etc
-correction in the display of the ring
+revision 1.0
+-----------------------------------------
+Added :
+     * hud
+     * time_left
+     * prev-next song etc
+     * correction in the display of the ring
+-----------------------------------------
+
+revision 1.1
+-----------------------------------------
+Added:
+    * upload song button
+    * name_tag for the songs
+    * display of the song's name above the duration bar
+
+revision 1.2
+-----------------------------------------
+Added:
+    * Functional menu, now all the songs are listed and can be clicked
+      in order to reproduce it.
 
 TODO: 
-  * add loop button
-  * improve the selection menu
-  * add effects menu
-  * add option to hide hud
-  * add song by dialog
+  * add loop button---------------------
+  * improve the selection menu---------- V
+  * add effects menu-------------------- V
+  * add option to hide hud--------------
+  * add song by dialog------------------ V
 */
 
 
@@ -22,11 +41,98 @@ let indice = 0;
 let fft;
 let radius = 150;
 let particles = [];
-let nparticles = 20;
+let nparticles = 30;
+let namePosition;
+
+//for uploading songs
+let inp;
+let label;
+
 
 //utilities
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function listSongs(){
+  for(let i=0; i<playList.length; i++){
+    console.log("track "+i+" "+playList[i].name);
+  }
+}
+
+//callback for uploading song
+function handleFile(file) {
+  print(file);
+  if(file.type === "audio"){
+    playList.push(loadSound(file));
+    console.log(playList.length +" "+ "check");
+    playList[playList.length-1].name = file.name;
+    listSongs();
+    initializeList();
+  }
+  
+}
+
+function initializeUploadButton(){
+  //upload button add true after handleFile to permit multiple files
+ 
+  
+  label =  createElement('label', 'uploadSong')
+  inp = createFileInput(handleFile, true);
+  inp.id("uploadSongButton");
+  
+  //inp.position(0, 0);
+  label.position(50 ,height );
+  
+  label.style("display","inline-block");
+  label.style("padding","0.35em 1.2em");
+  label.style("border", "0.1em solid #F2A3B3");
+  label.style("margin", "0 0.3em 0.3em 0");
+  label.style("border-radius","0.12em");
+  label.style("box-sizing","border-box");
+  label.style("text-decoration", "none");
+  label.style("font-family","'Roboto',sans-serif");
+  label.style("font-weight", "300");
+  label.style("color", "#FFFFFF");
+  label.style("text-align", "center");
+  label.style("transition", "all 0.2s;");
+  
+  label.child(inp);
+  inp.hide()
+  
+  label.parent(sideNavigation);
+}
+
+function initializeList(){
+  for(let i=0; i<playList.length; i++){
+    
+      if(document.getElementById(i)===null){
+        
+        let songName = playList[i].name;
+        if (songName === undefined) songName = "song "+i;
+        let lbl = createElement('label', songName);
+        lbl.id(i);
+        
+        lbl.position(50, 50 + 40* i );
+        lbl.style("font-family","'Roboto',sans-serif");
+        lbl.style("font-weight", "300");
+        lbl.style("color", "#FFFFFF");
+        //lbl.style("text-align", "center");
+        //lbl.mouseReleased(jump_to_song(i));
+        lbl.parent(sideNavigation);
+        
+        //i don't know why i cannot bind a function with parameter like 'jump_to_song(index)'
+        //to a onclick listener so i have to do it like this, pretty nasty if u ask me
+        document.getElementById(i).onclick = function(){
+            print("mek");
+            sound.playMode('restart');
+            sound.stop();
+            sound = playList[i];
+            sound.play();
+            indice = i;
+        }
+      }
+    }
 }
 
 //control
@@ -42,7 +148,7 @@ function doubleClicked(){
   togglePlay();
 }
 
-function mousePressed(){
+function touchStarted(){
   
   //move in duration bar
   if(mouseY < height && mouseY > height - 25){
@@ -55,9 +161,10 @@ function mousePressed(){
   
   //previous_song button 
   if(mouseY <= height-49 && mouseY >= height-71 && mouseX <= 32 && mouseX >= 5){
-    console.log("patras");
+    
     indice --;
     if(indice < 0) indice = playList.length - 1;
+    console.log("patras, PISTA "+indice);
     sound.playMode('restart');
     sound.stop();
     sound = playList[indice];
@@ -65,9 +172,11 @@ function mousePressed(){
   }
   //next_song button
   else if(mouseY <= height-49 && mouseY >= height-71 && mouseX <= 75 && mouseX >= 48){
-    console.log("palante");
     indice ++;
     if(indice == playList.length) indice = 0;
+    console.log("palante, PISTA "+indice);
+    
+    
     sound.playMode('restart');
     sound.stop();
     sound = playList[indice];
@@ -92,12 +201,12 @@ function drawTriangle(position, r_, angle){
   let r = r_;
   fill(position.y);
   push();
+  //position.rotate(Math.random(-0.1,0.1));
   translate(position.x, position.y);
   rotate(angle);
-  //isosceles
   beginShape();
     vertex(0,0 - r);
-    vertex(0 - r, 0+r); //r*1.5 for equilateral
+    vertex(0 - r, 0+r);
     vertex(0 + r, 0+r);
   endShape(CLOSE);
   pop();
@@ -121,7 +230,10 @@ let r = r_;
 function drawParticles(){
   for(let i=0; i<particles.length; i++){
     stroke(255);
-      drawTriangle(particles[i].position, particles[i].r, particles[i].angle);         
+      drawTriangle(particles[i].position, 
+                   particles[i].r, 
+                   particles[i].angle
+      );         
   }
 }
 
@@ -211,6 +323,16 @@ function draw_control_bar(){
   //draw time left
   let t = new Date((sound.duration() - sound.currentTime()) * 1000).toISOString().substr(11, 8);
   text( t, width-60, height-40);
+  
+}
+
+function draw_song_name(){
+  
+  let songName = playList[indice].name;
+  if (songName === undefined) songName = "song "+indice;
+  text(songName,namePosition, height-40);
+  namePosition--;
+  if(namePosition == 70) namePosition = width - 80;
 }
 
 //events
@@ -238,6 +360,7 @@ function setup() {
       }
     );
   }
+  /*
   //select song 
   sel = createSelect();
   //sel.position(10, 10);
@@ -245,6 +368,15 @@ function setup() {
   sel.option('intro');
   sel.option('cancaneo');
   sel.changed(mySelectEvent);
+  */
+  
+  namePosition = width/2;
+  
+  initializeUploadButton();
+  
+  listSongs();
+  
+  initializeList();
   
 }
 
@@ -270,8 +402,11 @@ function draw() {
   drawParticles();
   updateParticles();
   draw_control_bar();
+  draw_song_name();
   draw_duration_pointer();
   stroke(0);
-  draw_music_ring(); 
+  draw_music_ring();
+  //sld.value(sound.currentTime());
+ 
   
 }
