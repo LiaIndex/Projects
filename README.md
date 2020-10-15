@@ -5,7 +5,7 @@ Hi everyone, i'm Lia and this is my github page for my personal projects, here i
 # Simple mp3 
 
 Not everything has to have a very complicated math related stuff to actually be interesting, this is one of my favourites projects, everything you see is coded by me, the style, the time bar, the particles... It uses p5.js for drawing the canvas and the sound extension to have the fft and get the sound spectrum :) 
-<iframe src="https://editor.p5js.org/LiaIndex/embed/qtWsUToC3" width="1080" height="760"></iframe>
+<iframe src="https://editor.p5js.org/LiaIndex/embed/qtWsUToC3" width="1080" height="720"></iframe>
 
 # Lissajous figures
 
