@@ -7,6 +7,8 @@ float xOffset;
 float yOffset;
 float noiseScale;
 float displacement;
+float initialDisplacementFromOriginX;
+float initialDisplacementFromOriginY;
 int maxHeight;
 boolean stop;
 PeasyCam cam;
@@ -33,15 +35,15 @@ public color[] surfacePalette =
 //BETA
 void keyPressed(){
 
-  if(key == 'j'){
-    det+=100;
+  if(key == '+'){
+    det*=2;
     initTerrain(det);
     alterHeights();
     printLog();
   }
-  else if(key == 'l'){
-    det -=100;
-    if(det<100)det = 100;
+  else if(key == '-'){
+    det /= 2 ;
+    if(det<64)det = 64;
     initTerrain(det);
     alterHeights();
     printLog();
@@ -49,24 +51,134 @@ void keyPressed(){
 }
 
 
+void keyBoardControl(){
+
+   //movement
+  switch(key){
+    case 'w':
+      yOffset -= displacement;
+      break;
+    case 's':
+      yOffset += displacement;
+      break;
+    case 'a':
+      xOffset -= displacement;
+      break;
+    case 'd':
+      xOffset += displacement;
+      break;
+    case 'q':
+      yOffset -= displacement;
+      xOffset -= displacement;
+      break;
+    case 'e':
+      yOffset -= displacement;
+      xOffset += displacement;
+      break;
+    case 'z':
+      xOffset -= displacement;
+      yOffset += displacement;
+      break;
+    case 'c':
+      xOffset += displacement;
+      yOffset += displacement;
+      break;
+    //for debugging
+    case '1':
+      renderLightAndShadows = false;
+      break;
+    case '2':
+      renderLightAndShadows = true;
+      break;
+    case '3':
+      renderWireFrame = true;
+      break;
+    case '4':
+      renderWireFrame = false;
+      break;
+    case '5':
+    seaSmooth = true;
+      minimumHeight = 999;
+      alterHeights();
+      seaLevel = minimumHeight + (float)heightestPoint/10.0;
+      break;
+    case '6':
+      seaSmooth = false;
+      alterHeights();
+      seaLevel = minimumHeight + (float)heightestPoint/6.0;
+      break;
+    case 'b':
+      dayMode = true;
+      nightMode = false;
+      eveningMode = false;
+      break;
+    case 'n':
+      dayMode = false;
+      nightMode = true;
+      eveningMode = false;
+      if(stars == null)stars = generateStars(300, 1500);
+      break;
+    case 'm':
+      dayMode = false;
+      nightMode = false;
+      eveningMode = true;
+      if(stars == null)stars = generateStars(300, 1500);
+      break;
+   }
+
+}
+
 void printLog(){
 
   print(
-    "Debug list :\n"+
-    "theoritical max height: " + maxHeight +"\n"+
-    "max point: " + heightestPoint +"\n"+
-    "min point: " + minimumHeight +"\n"+
+    
+    "Plain terrain generation v0.2, Lia Belda Calvo\n"+
+    "----------------------------------------------\n"+
+    "Debug list :\n\n"+
+    
+    "Noise Settings \n"+
+    "-------------- \n"+
+    "Noise Scale: "+noiseScale +"\n"+
+    "Noise layers and falloff: 8, 44% \n"+
+    "Theoritical max height: " + maxHeight +"\n"+
+    "Max point: " + heightestPoint +"\n"+
+    "Min point: " + minimumHeight +"\n"+
+    "Initial displacement from the noise origin on X: "+initialDisplacementFromOriginX+"\n"+
+    "Initial displacement from the noise origin on Y: "+initialDisplacementFromOriginY+"\n\n"+
+    
+    
+    "Terrain settings \n"+
+    "---------------- \n"+
+    "Initial detail: "+detail+"\n"+
+    "Number of points: "+ detail * detail +"\n"+
+    "Sea smooth: "+ seaSmooth +"\n" +
     "sea level: " + seaLevel + "\n"+
-    "number of points: "+ detail * detail +"\n"+
-    "seaSmooth: "+ seaSmooth +"\n" +
-    "render wireframe: "+renderWireFrame + "\n");
+    "Render Wireframe: "+renderWireFrame + "\n"+
+    
+    "Light settings \n"+
+    "-------------- \n");
     
     String mode = "Day mode: ";
     if(dayMode) mode += "moorning";
     else if(eveningMode) mode += "evening";
     else mode += "night";
     
-    print( mode +"\nrender lights and shadows: "+renderLightAndShadows);
+    print( mode +"\n"+
+    "Render lights and shadows: "+renderLightAndShadows+"\n\n\n");
+    
+    print(
+      "+++++++++++++++++++++++++++++++++++\n"+
+      "Instructions: \n"+
+      "1 & 2 On/Off lights\n"+
+      "3 & 4 On/Off wireframes\n"+
+      "5 & 6 On/Off Sea smooth\n"+
+      "b,n,m swtches day, night, evening\n"+
+      "w,a,s,d move up, down, left, right \n"+
+      "q,e,z,c move in diagonals\n"+
+      "NOT FINISHED, PLENTTY OF BUGS ->  +,- duplicate/half detail\n"+
+      "+++++++++++++++++++++++++++++++++++\n\n"
+    
+    );
 
 }
 
@@ -78,6 +190,8 @@ void initTerrain(int d){
   yOffset = 0;
   maxHeight = 150;
   displacement = 0.05;
+  initialDisplacementFromOriginX =random(314.1592);
+  initialDisplacementFromOriginY =random(314.1592);
   stop = true;
   heightestPoint = 0;
   minimumHeight = 999;
@@ -119,8 +233,8 @@ void alterHeights(){
     float h = 0;
     PVector p = field[i];
     float noiseValue = noise(
-        p.x * noiseScale + xOffset,
-        p.y * noiseScale + yOffset
+        p.x * noiseScale + xOffset + initialDisplacementFromOriginX,
+        p.y * noiseScale + yOffset + initialDisplacementFromOriginY
       );
     
     //decomment for island like terrain
@@ -253,29 +367,11 @@ void setup(){
 void draw(){
   
   background(0);
-  translate(- width/2.1 ,0, -height*1.2);
+  translate(- width/2.1 ,-150, -height);
   rotateX(PI/5);
   //yOffset -= 0.1;
-  //movement
-  switch(key){
-    case 'w':
-      yOffset -= displacement;
-      break;
-    case 's':
-      yOffset += displacement;
-      break;
-    case 'a':
-      xOffset -= displacement;
-      break;
-    case 'd':
-      xOffset += displacement;
-      break;
-    case '1':
-      renderLightAndShadows = false;
-      break;
-    case '2':
-      renderLightAndShadows = true;
-   }
+ 
+  keyBoardControl();
   
   
   if(renderLightAndShadows){
