@@ -2,9 +2,12 @@ import peasy.*;
 
 int detail;
 PVector[] field;
+PVector[] seaField;
 PVector[] stars;
 float xOffset;
 float yOffset;
+float xOffsetSea;
+float yOffsetSea;
 float noiseScale;
 float displacement;
 float initialDisplacementFromOriginX;
@@ -15,13 +18,17 @@ PeasyCam cam;
 float heightestPoint;
 float minimumHeight;
 float seaLevel;
-boolean seaSmooth;
+boolean renderSea;
 boolean renderWireFrame;
 boolean dayMode;
 boolean eveningMode;
 boolean nightMode;
 boolean renderLightAndShadows;
+boolean semiOpaqueSea;
 int det;
+//bugged
+PGraphics sea_pg;
+PShape sf;
 
 public color[] waterPalette =
     {//earth like
@@ -36,18 +43,34 @@ public color[] surfacePalette =
 void keyPressed(){
 
   if(key == '+'){
-    det*=2;
+    initialDisplacementFromOriginX += xOffset;
+    initialDisplacementFromOriginY += yOffset;
+    xOffset = 0;
+    yOffset = 0;
+    det+=128;
     initTerrain(det);
     alterHeights();
     printLog();
   }
   else if(key == '-'){
-    det /= 2 ;
-    if(det<64)det = 64;
+    initialDisplacementFromOriginX += xOffset;
+    initialDisplacementFromOriginY += yOffset;
+    xOffset = 0;
+    yOffset = 0;
+    det -= 128 ;
+    if(det<128)det = 128;
     initTerrain(det);
     alterHeights();
     printLog();
   } 
+  else if(key == 'h'){
+    if(sf == null){
+       print("trying to make model...");
+       sf = createStaticFrame();
+     }
+     else
+       sf = null;
+  }
 }
 
 
@@ -57,31 +80,55 @@ void keyBoardControl(){
   switch(key){
     case 'w':
       yOffset -= displacement;
+      initialDisplacementFromOriginY -= displacement;
       break;
     case 's':
       yOffset += displacement;
+      initialDisplacementFromOriginY += displacement;
       break;
     case 'a':
       xOffset -= displacement;
+      initialDisplacementFromOriginX -= displacement;
       break;
     case 'd':
       xOffset += displacement;
+      initialDisplacementFromOriginX += displacement;
       break;
     case 'q':
       yOffset -= displacement;
+      initialDisplacementFromOriginY -= displacement;
       xOffset -= displacement;
+      initialDisplacementFromOriginX -= displacement;
       break;
     case 'e':
       yOffset -= displacement;
+      initialDisplacementFromOriginY -= displacement;
       xOffset += displacement;
+      initialDisplacementFromOriginX += displacement;
       break;
     case 'z':
       xOffset -= displacement;
       yOffset += displacement;
+      initialDisplacementFromOriginY += displacement;
+      initialDisplacementFromOriginX -= displacement;
       break;
     case 'c':
       xOffset += displacement;
       yOffset += displacement;
+      initialDisplacementFromOriginY += displacement;
+      initialDisplacementFromOriginX += displacement;
+      break;
+    case 'i':
+      yOffsetSea -= displacement;
+      break;
+    case 'k':
+      yOffsetSea += displacement;
+      break;
+    case 'j':
+      xOffsetSea -= displacement;
+      break;
+    case 'l':
+      xOffsetSea += displacement;
       break;
     //for debugging
     case '1':
@@ -97,15 +144,10 @@ void keyBoardControl(){
       renderWireFrame = false;
       break;
     case '5':
-    seaSmooth = true;
-      minimumHeight = 999;
-      alterHeights();
-      seaLevel = minimumHeight + (float)heightestPoint/10.0;
+      renderSea = true;
       break;
     case '6':
-      seaSmooth = false;
-      alterHeights();
-      seaLevel = minimumHeight + (float)heightestPoint/6.0;
+      renderSea = false;
       break;
     case 'b':
       dayMode = true;
@@ -131,8 +173,15 @@ void keyBoardControl(){
 void printLog(){
 
   print(
-    
-    "Plain terrain generation v0.2, Lia Belda Calvo\n"+
+"\n"+    
+"  _______                      _      \n"+
+" |__   __|                    (_)     \n"+
+"    | | ___ _ __ _ __ __ _ ___ _ ___  \n"+
+"    | |/ _ \\ '__| '__/ _` / __| / __| \n"+
+"    | |  __/ |  | | | (_| \\__ \\ \\__ \\ \n"+
+"    |_|\\___|_|  |_|  \\__,_|___/_|___/ \n"+
+                                     
+    "\nPlain terrain generation v0.2, Lia Belda Calvo\n"+
     "----------------------------------------------\n"+
     "Debug list :\n\n"+
     
@@ -151,7 +200,7 @@ void printLog(){
     "---------------- \n"+
     "Initial detail: "+detail+"\n"+
     "Number of points: "+ detail * detail +"\n"+
-    "Sea smooth: "+ seaSmooth +"\n" +
+    //"Sea smooth: "+ seaSmooth +"\n" +
     "sea level: " + seaLevel + "\n"+
     "Render Wireframe: "+renderWireFrame + "\n"+
     
@@ -171,10 +220,11 @@ void printLog(){
       "Instructions: \n"+
       "1 & 2 On/Off lights\n"+
       "3 & 4 On/Off wireframes\n"+
-      "5 & 6 On/Off Sea smooth\n"+
+      "5 & 6 On/Off Sea\n"+
       "b,n,m swtches day, night, evening\n"+
       "w,a,s,d move up, down, left, right \n"+
       "q,e,z,c move in diagonals\n"+
+      "h, capture the frame to make an static frame, with this the performance \nwill increase a lot, to be able to move again press h again\n"+
       "NOT FINISHED, PLENTTY OF BUGS ->  +,- duplicate/half detail\n"+
       "+++++++++++++++++++++++++++++++++++\n\n"
     
@@ -186,19 +236,21 @@ void initTerrain(int d){
 
   detail = d;
   field = new PVector[detail * detail];
+  seaField = new PVector[detail * detail];
   xOffset = 0;
   yOffset = 0;
+  xOffsetSea = 0;
+  yOffsetSea = 0;
   maxHeight = 150;
-  displacement = 0.05;
-  initialDisplacementFromOriginX =random(314.1592);
-  initialDisplacementFromOriginY =random(314.1592);
+  displacement = 0.0125;
+  
   stop = true;
   heightestPoint = 0;
   minimumHeight = 999;
-  seaSmooth = true;
+  //seaSmooth = false;
   renderWireFrame = false;
   renderLightAndShadows = true;
-  
+  renderSea = true;
   dayMode = true;
   eveningMode = false;
   nightMode = false;
@@ -206,27 +258,34 @@ void initTerrain(int d){
   if(nightMode){
     stars = generateStars(300, 1500);
   }
-    
   
-  int w = width/detail;
-  int h = height/detail;
+  
+  float w = (float)width / (float)detail;
+  float h = (float)height / (float)detail;
+  
+  print("width: "+width+"\nheight: "+height+"\nw: "+w+"\nh: "+h);
   
   for(int i=0; i<field.length; i++){
     float posX = (i % detail) * w ;
     float posY = (i / detail) * h;
     field[i] = new PVector(posX, posY, 0);
+    seaField[i] = new PVector(posX, posY, 0);
   }
   
-  noiseDetail(8, 0.44);
-  noiseScale = 0.01;
+  //noiseDetail(8, 0.44);
+  noiseDetail(8, 0.45);
+  //noiseScale = 0.008;
   
-  
+  //used when 1-abs
+  noiseScale = 0.0019;
   
   
 }
 
 
 void alterHeights(){
+  //uncomment this when using the angle mapping and the 1-abs
+  //noiseScale = 0.0022; 0.0019 give better results
   
   for(int i=0; i<field.length; i++){
    
@@ -238,17 +297,38 @@ void alterHeights(){
       );
     
     //decomment for island like terrain
-    if(seaSmooth)
-      noiseValue = max(0.35, noiseValue);
+    //if(seaSmooth)
+    //noiseValue = max(0.20, noiseValue);
     
-    //uncomment for more sharpness in the mountains
-    noiseValue *= noiseValue;
-    h = noiseValue * maxHeight;
+    //use this angle + the 1-abs formula to get sharpness in the mountains
+    //when doing that turn off seaSmooth.
+    
+    float angle = map(noiseValue, 0, 1, -PI, PI);
+    noiseValue = 1-abs(sin(angle));
+    
+    h = noiseValue * maxHeight ;
     if(h > heightestPoint) heightestPoint = h;
     if(h < minimumHeight) minimumHeight = h;
     p.z = h;
   }
   
+}
+
+void alterHeightsSea(){
+  noiseDetail(4, 0.5);
+  float seaNoiseScale =0.02;
+  for(int i=0; i<seaField.length; i++){
+   
+    PVector p = seaField[i];
+    float noiseValue = noise(
+        p.x * seaNoiseScale + xOffsetSea + initialDisplacementFromOriginX,
+        p.y * seaNoiseScale + yOffsetSea + initialDisplacementFromOriginY
+      );
+    
+    p.z = (noiseValue * 5) + seaLevel ;
+  }
+  
+  noiseDetail(8, 0.45);
 }
 
 PVector[] generateStars(int numberOfPoints, int radius){
@@ -273,7 +353,6 @@ PVector[] generateStars(int numberOfPoints, int radius){
     return points;
 }
 
-
 void renderField(){
   if(renderWireFrame){
     stroke(0);
@@ -295,8 +374,8 @@ void renderField(){
       c = waterPalette[ (int)map(field[i].z, minimumHeight, seaLevel, 0, waterPalette.length - 1)];
       
     }else{
-      c = surfacePalette[ (int)map(field[i].z, seaLevel, heightestPoint, 0, surfacePalette.length - 1)];
-     
+      
+      c = surfacePalette[ (int)map(field[i].z, seaLevel, heightestPoint, 0, surfacePalette.length - 1 )];
     }
     fill(c);
     PVector p = field[i];
@@ -307,6 +386,37 @@ void renderField(){
   }
   endShape();
 }
+
+
+
+
+
+
+void renderSeaField(){
+  
+  beginShape(TRIANGLE_STRIP);
+  
+  for(int i=0; i<seaField.length - detail; i++){
+    if(i%detail == 0){
+      endShape();
+      beginShape(TRIANGLE_STRIP);
+    }
+    
+    if(field[i].z > seaLevel + 1)
+      fill(color(#5580ff, 0));
+    else
+      fill(color(#5580ff, 160));
+    PVector p = seaField[i];
+    PVector p2 = seaField[i + detail];
+    vertex(p.x, p.y, p.z);
+    vertex(p2.x, p2.y, p2.z);
+    
+  }
+  endShape();
+}
+
+
+
 
 void renderStars(){
   stroke(255);
@@ -330,22 +440,81 @@ void renderLightsAndShadows(){
     directionalLight(80, 80, 180, xCamPosNorm, yCamPosNorm, zCamPosNorm);
     renderStars();
   }else if(eveningMode){
-    directionalLight(80, 80, 180, xCamPosNorm, yCamPosNorm, zCamPosNorm);
+    directionalLight(227, 168, 87, xCamPosNorm, yCamPosNorm, zCamPosNorm);
     renderStars();
   }
   
   ambientLight(0,0,0);
 }
 
+
+PShape createStaticFrame(){
+  PShape staticField = createShape(GROUP);
+  PShape auxShape = createShape();
+  auxShape.beginShape(TRIANGLE_STRIP);
+  
+  for(int i=0; i<field.length - detail; i++){
+    if(i%detail == 0){
+      auxShape.endShape();
+      staticField.addChild(auxShape);
+      auxShape = createShape();
+      auxShape.beginShape(TRIANGLE_STRIP);
+    }
+    color c;
+    if(field[i].z <= seaLevel){
+      //under sea level use water palette
+      c = waterPalette[ (int)map(field[i].z, minimumHeight, seaLevel, 0, waterPalette.length - 1)];
+      
+    }else{
+      c = surfacePalette[ (int)map(field[i].z, seaLevel, heightestPoint, 0, surfacePalette.length - 1 )];
+    }
+    auxShape.fill(c);
+    PVector p = field[i];
+    PVector p2 = field[i + detail];
+    auxShape.vertex(p.x, p.y, p.z);
+    auxShape.vertex(p2.x, p2.y, p2.z);
+    
+  }
+  auxShape.endShape();
+  staticField.addChild(auxShape);
+  //---------------------------------
+  if(renderSea){
+    auxShape = createShape();
+    auxShape.beginShape(TRIANGLE_STRIP);
+    
+    for(int i=0; i<seaField.length - detail; i++){
+      if(i%detail == 0){
+        auxShape.endShape();
+        staticField.addChild(auxShape);
+        auxShape = createShape();
+        auxShape.beginShape(TRIANGLE_STRIP);
+      }
+      fill(color(#5580ff, 160));
+      PVector p = seaField[i];
+      PVector p2 = seaField[i + detail];
+      auxShape.vertex(p.x, p.y, p.z);
+      auxShape.vertex(p2.x, p2.y, p2.z);
+      
+    }
+    auxShape.endShape();
+    staticField.addChild(auxShape);
+  }
+  
+  
+  return staticField;
+
+}
+
 void setup(){
-  size(800,600,P3D);
+  size(800,800,P3D);
   //camera settings
   cam = new PeasyCam(this, 100);
-  cam.setMinimumDistance(200);
+  cam.setMinimumDistance(0);
   cam.setMaximumDistance(1000);
-  cam.setDistance(200);
+  cam.setDistance(600);
   frameRate(60);
-  
+  initialDisplacementFromOriginX =random(314.1592);
+  initialDisplacementFromOriginY =random(314.1592);
   //initialize field
   det = 256;
   initTerrain(det);
@@ -353,31 +522,45 @@ void setup(){
   alterHeights();
   
   //correct color palette 
-  if(seaSmooth)
-    seaLevel = minimumHeight + (float)heightestPoint/10.0;
-  else
-    seaLevel = minimumHeight + (float)heightestPoint/6.0;
-    
-   
+  //if(seaSmooth)
+  //  seaLevel = minimumHeight + (float)heightestPoint/10.0;
+  //else
+  seaLevel = minimumHeight + (float)heightestPoint/6.0;
+  
     
   //print creation details
   printLog();
+ 
 }
 
 void draw(){
   
   background(0);
-  translate(- width/2.1 ,-150, -height);
+  push();
+    textSize(27);
+    noStroke();
+    fill(#ffffff);
+    text(frameRate, width/5, -height/4, 0);
+  pop();
+  
+  translate(- width/2.1 ,-300, -height);
   rotateX(PI/5);
   //yOffset -= 0.1;
  
   keyBoardControl();
   
-  
   if(renderLightAndShadows){
     renderLightsAndShadows();
   }
+  if(sf == null){
+    alterHeights();
+    renderField();
+    if(renderSea){
+       alterHeightsSea();
+       renderSeaField();
+    }
+  }
+  else  
   
-  alterHeights();
-  renderField();
+    shape(sf);
 }
