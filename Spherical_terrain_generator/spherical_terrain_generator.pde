@@ -1,7 +1,7 @@
 import peasy.*;
 import java.util.*;
 
-int _n = 600;
+int _n = 400;
 int _r = 90;
 int seed;
 float angle = 0;
@@ -11,7 +11,8 @@ float seaLevel;
 PeasyCam cam;
 
 boolean debugColor = false;
-boolean seaSmooth = false;
+boolean seaSmooth = true;
+boolean complexClouds = false;
 //for camera
 boolean _renderOneFace = true;
 
@@ -25,6 +26,11 @@ PVector xp[] = new PVector[ _n * _n];
 PVector xn[] = new PVector[ _n * _n];
 
 Map<String, PVector[]> cube;
+
+PVector[] stars;
+PShape _planet;
+PShape _clouds;
+
 
 PVector[] facesMainVectors = {
       new PVector(0,0,1), //zp
@@ -45,7 +51,29 @@ public color[] surfacePalette =
     {//earth like
     #d1de45,#c9d93d,#c0d336,#b7cd2f,#adc628,#a2be21,#97b71a,#8baf13,#7fa60d,#729e07,#659403,#578b01,#488100,#437801,#487103,#4d6c06,#516609,#54620e,#585f12,#5c5c16,#605a1b,#645920,#685925,#6d5a2b,#725c31,#775e38,#7d623f,#836648,#896b51,#90725b,#977965,#9e8271,#a68c7e,#ad968c,#b5a29a,#bdafaa,#c5bebb,#cdcdcd};
 
-
+void keyPressed(){
+  switch(key){
+    case 'c':
+      complexClouds = !complexClouds;
+      print("\n complex clouds "+complexClouds);
+      break;
+    case 'd':
+      debugColor = !debugColor;
+      print("\n debug color "+debugColor);
+      cube = generateCube();
+      cube = alterCubeMagnitudes(cube);
+      _planet = createStaticRender(cube);
+      break;
+    case 'w':
+      seaSmooth = !seaSmooth;
+      print("\n smooth ocean "+seaSmooth);
+      cube = generateCube();
+      cube = alterCubeMagnitudes(cube);
+      _planet = createStaticRender(cube);
+      break;
+  }
+  
+}
 
 Map<String, PVector[]> generateCube(){
   
@@ -153,7 +181,7 @@ void render( Map<String, PVector[]> map){
             }
           }//seasmooth
           else{
-            if(face[i].mag() <= _r + seaLevel+0.01)fill(0,0,255);
+            if(face[i].mag() <= _r + seaLevel)fill( waterPalette[ (int) map( face[i].mag(),_r,_r+seaLevel+0.01,0, waterPalette.length-1)]);
             else fill( surfacePalette[ (int) map( face[i].mag(),_r+seaLevel,_r+maxHeightLevel,0, surfacePalette.length-1)]);
           }
          }//debug color if
@@ -169,6 +197,110 @@ void render( Map<String, PVector[]> map){
   }
   
 }
+
+
+
+
+
+PShape createStaticRender( Map<String, PVector[]> map){
+  //get camera pos
+  PShape planet = createShape(GROUP);
+  PShape aux = createShape();
+ 
+  float[] cameraPos = cam.getPosition();
+  PVector camPos = new PVector(cameraPos[0], cameraPos[1], cameraPos[2]);
+  
+  //get xp, xn, yp... vectors
+  
+  //calculate the distance
+  float distance = 999999999;
+  int index = 0;
+
+  for(int i=0; i<facesMainVectors.length; i++){
+    float auxDist = camPos.dist(facesMainVectors[i]);
+    if(auxDist <= distance){
+        distance = auxDist;
+        index = i;
+    }  
+  }
+  //print(index +"\n");
+  //show the face corresponding to the shorter distance
+  int indexForRendering = 0;
+  for(Map.Entry<String, PVector[]> entry : map.entrySet()){
+    
+    //for some reason java puts the thins on the map
+    //not in the map.putxxx order 
+    //print("indexForRendering : "+indexForRendering +"entry : "+entry.getKey()+"\n");
+    //only render the nearest face
+    //print(index+" "+indexForRendering+"\n");
+    //if(indexForRendering != index && _renderOneFace){ indexForRendering ++; continue;}
+      PVector[] face = entry.getValue();
+      int tik = 0;
+      aux = createShape();
+      aux.beginShape(QUAD_STRIP);
+      aux.noStroke();
+      for(int i=0; i<face.length; i++){
+        //   . - . - .
+        //   |   |   |
+        //   . - . - .
+        //   |   |   |
+        //   . - . - .
+        if(tik == _n){
+            aux.endShape();
+            planet.addChild(aux);
+            aux = createShape();
+            aux.beginShape(QUAD_STRIP);
+            aux.noStroke();
+            tik=0;
+        }
+        
+        if(!debugColor){
+          if(!seaSmooth){
+            //for color
+            if( face[i].mag() <= _r + seaLevel ){
+              aux.fill(
+                waterPalette[ (int) map( 
+                  face[i].mag(), 
+                  _r, 
+                  _r+seaLevel, 
+                  0, waterPalette.length-1)
+                ]
+              );
+            }
+            else{
+              aux.fill(
+                surfacePalette[ (int) map(
+                  face[i].mag(), 
+                  _r+seaLevel, 
+                  _r+maxHeightLevel, 
+                  0, surfacePalette.length-1)
+                 ]
+               );
+            }
+          }//seasmooth
+          else{
+            if(face[i].mag() <= _r + seaLevel)aux.fill( waterPalette[ (int) map( face[i].mag(),_r,_r+seaLevel+0.01,0, waterPalette.length-1)]);
+            else aux.fill( surfacePalette[ (int) map( face[i].mag(),_r+seaLevel,_r+maxHeightLevel,0, surfacePalette.length-1)]);
+          }
+         }//debug color if
+         
+         
+        aux.vertex(face[i].x,face[i].y,face[i].z);
+        if(i+_n < face.length) aux.vertex(face[i+_n].x,face[i+_n].y,face[i+_n].z);
+        tik++;
+      }
+      aux.endShape();
+      indexForRendering ++;
+      planet.addChild(aux);
+  }
+ 
+  return planet;
+}
+
+
+
+
+
 
 Map<String, PVector[]> alterCubeMagnitudes(Map<String, PVector[]> cube){
   noiseSeed(seed);
@@ -199,8 +331,8 @@ Map<String, PVector[]> alterCubeMagnitudes(Map<String, PVector[]> cube){
                            aux.z * noiseScale + _r);
       
       //based on the function (1-|sin(x)|)^2
-      float noiseVal =   1 -  noise3 ;
-      //if(noiseVal > 0.8) 
+      float noiseVal =     1 - noise3 ;
+      //if(noiseVal > 1) 
       //print(noiseVal + "\n");
       noiseVal *= noiseVal;
       
@@ -211,7 +343,9 @@ Map<String, PVector[]> alterCubeMagnitudes(Map<String, PVector[]> cube){
       if(seaSmooth){
         if(heightMag - minVal <= 0)
           heightMag = minVal;
-        //seaLevel = 0.2 ;
+          heightMag = max(0, heightMag-minVal);
+          seaLevel = 0.3;
+        //seaLevel = 1 ;
       }
       if(heightMag>maxHeightLevel) maxHeightLevel = heightMag;
       aux.setMag(_r + heightMag);
@@ -221,21 +355,100 @@ Map<String, PVector[]> alterCubeMagnitudes(Map<String, PVector[]> cube){
   return cube;
 }
 
+PVector[] generateStars(int numberOfPoints, int radius){
+    PVector[] points = new PVector[numberOfPoints];
+    float gr = (float) (1+Math.sqrt(5)/2);
+    float lambda = PI * gr;
+    float inc = gr / 10;
+    
+    for(int i=0; i<numberOfPoints; i++){
+      gr += inc;
+      lambda = PI * gr;
+      float t = (float)i/numberOfPoints;
+      float a1 = acos(1-2*t);
+      float a2 = lambda * i;
+      float x = sin(a1) * cos(a2);
+      float y = sin(a1) * sin(a2);
+      float z = cos(a1);
+      PVector p = new PVector(x,y,z).mult(radius);
+      points[i] = p;
+               
+    }
+    return points;
+}
+
+
+void renderStars(){
+  strokeWeight(2);
+    for(int i=0; i<stars.length; i++){
+      if(i%2==0) stroke(255);
+      else if(i%5==0) stroke(90);
+      else stroke(138);
+      point(stars[i].x,stars[i].y,stars[i].z);
+   }
+  noStroke();
+}
+
+void renderClouds(boolean complexSystem){
+    fill(255);
+    //light clouds version much more performance
+    if(!complexSystem){
+      float rotationAmount = frameCount / 10000.0 * PI;
+      rotate(rotationAmount);
+      shape(_clouds);
+      rotate(-rotationAmount);
+    }else{
+      //heavy clouds version alpha
+      clouds c1 = new clouds(100, (int)(_r * 1.05) );
+      clouds c2 = new clouds(700, (int)(_r * 1.15) );
+      float rotationAmount1 = frameCount / 1000.0 * PI;
+      float rotationAmount2 = frameCount / 950.0 * PI;
+      fill(255);
+      rotateY(rotationAmount1);
+      c1.render();
+      rotateY(-rotationAmount1);
+      rotateY(rotationAmount2);
+      c2.render();
+      rotateY(-rotationAmount2);
+    }
+}
+
+void renderAtmosphere(){
+  push();
+    renderClouds(complexClouds);
+    
+    fill(#ff0000, 20);
+    noStroke();
+    sphere(_r *1.22 );
+    fill(#00ff00, 20);
+    
+    sphere(_r *1.24 );
+    fill(#0000ff, 20);
+   
+    sphere(_r *1.26 );
+    renderStars();
+pop();
+}
+
 
 void setup(){
   size(600,600,P3D);
   cam = new PeasyCam(this,100);
-  cam.setMinimumDistance(180);
+  cam.setMinimumDistance(0);
   cam.setMaximumDistance(2000);
   cam.setDistance(250);
   
-  
+  stars = generateStars(900, 1500);
   cube = generateCube();
   seed = 0;//(int)random(999999999);
   //seed = 189928896;
   cube = alterCubeMagnitudes(cube);
+  _planet = createStaticRender(cube);
   
-  
+  PImage img = loadImage("clouds.png");
+  _clouds = createShape(SPHERE, _r*1.05);
+  _clouds.setStrokeWeight(0);
+  _clouds.setTexture(img);
   //189928896
   //0
   print("Generated world: "+seed+"\n"+
@@ -249,15 +462,16 @@ void setup(){
 
 }
 void draw(){
-  background(120);
+  background(0);
   
   lights();
-  text(frameRate, _r*2,0);
-  /*rotateX(angle);
+  //text(frameRate, _r*2,0);
+  /*
+  rotateX(angle);
   rotateY(angle);
-  angle += 0.01;
+  angle += 0.02;
   */
-  
+  /*
   strokeWeight(3);
   stroke(color(255,0,0));
   line(0,0,0,_r*2,0,0);
@@ -265,15 +479,23 @@ void draw(){
   line(0,0,0,0,_r*2,0);
   stroke(color(0,0,255));
   line(0,0,0,0,0,_r*2);
-  
+  */
   if(debugColor){
     stroke(0);
     fill(240);
   }
   strokeWeight(0.5);
+  stroke(0);
   if(!debugColor) noStroke();
   //noFill();
-  render(cube);
-  
+  //render(cube);
+  shape(_planet);
+  if(!seaSmooth){
+    noStroke();
+    fill(#0000DE, 100);
+    sphere(_r + seaLevel + 0.4);
+  }
+  renderStars();
+  renderAtmosphere();
   
 }
